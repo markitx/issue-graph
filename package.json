@@ -11,7 +11,10 @@
     "url": "https://github.com/hjylewis/issue-graph.git"
   },
   "dependencies": {
-
+    "request": "~2.33.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.1"
   },
   "author": "Henry Lewis",
   "license": "MIT",
