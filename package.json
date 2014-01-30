@@ -1,0 +1,22 @@
+{
+  "name": "issue-graph",
+  "version": "0.0.0",
+  "description": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hjylewis/issue-graph.git"
+  },
+  "dependencies": {
+
+  },
+  "author": "Henry Lewis",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hjylewis/issue-graph/issues"
+  },
+  "homepage": "https://github.com/hjylewis/issue-graph"
+}
