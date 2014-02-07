@@ -2,11 +2,12 @@ var GitHubApi = require('github');
 //var process = require('process');
 var fs = require('fs');
 
+var oauth = "";
+
 
 if (process.argv[2] != null) { //argument is a path to file containing oauth
 	fs.readFile(process.argv[2], 'utf8', function (err, data) {
 		var oauth = data;
-		console.log(oauth);
 	});
 } else {
 	console.error( new Error('need argument'));
@@ -27,12 +28,12 @@ github.authenticate({
 });
 
 
-github.issues.getAll({}, function(err, res) {
+github.issues.getAll({}, function(err, res) { //arr maps id # to body
 	var arr = {}
-	for (issue in res){
-		console.log
-		arr[res.id] = res.body;
-	}
+	res.forEach( function(value) {
+		console.log(value.id);
+		arr[value.id] = value.body;
+	});
 	for (id in arr){
 		console.log(id +" "+ arr[id]);
 	}
