@@ -28,16 +28,30 @@ github.authenticate({
 });
 
 
-github.issues.getAll({}, function(err, res) { //arr maps id # to body
-	var arr = {}
-	res.forEach( function(value) {
-		console.log(value.id);
-		arr[value.id] = value.body;
-	});
-	for (id in arr){
-		console.log(id +" "+ arr[id]);
-	}
-});
+// github.issues.getAll({
+// 	//state: "open"
+// }, function(err, res) { //arr maps id # to body
+// 	var arr = {}
+// 	res.forEach( function(value) {
+// 		arr[value.id] = value.body;
+// 	});
+// 	for (id in arr){
+// 		console.log(id +" "+ arr[id]);
+// 	}
+// });
+
+github.issues.getRepoIssue({
+	user: "hjylewis"
+	repo: "issue-graph"
+})
+
+// github.events.get({
+// 	org: "markitx"
+// }, function(err, res){
+// 	console.log(JSON.stringify(res,null,2));
+// });
+
+
 
 // github.user.getFollowingFromUser({
 //     // optional:

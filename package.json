@@ -11,7 +11,8 @@
     "url": "git://github.com/hjylewis/issue-graph.git"
   },
   "dependencies": {
-    "request": "~2.33.0"
+    "request": "~2.33.0",
+    "grunt": "~0.3.17"
   },
   "devDependencies": {
     "mocha": "~1.17.1"
