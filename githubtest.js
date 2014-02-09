@@ -37,7 +37,7 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 
 
 
-			package(arr);
+			package(arr);//returns array of nodes
 		})
 
 
@@ -70,7 +70,7 @@ function getEdges(body){//takes issue body text, parses it and returns array of 
 
 function node(number, title, edges) {
 	this.number = number; //issue number
-	this.title = title;
+	this.title = title; //issue title
 	this.edges = edges; //array of paths
 }
 
