@@ -45,22 +45,20 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 function package(arr) {//param: hashtable of number to msg body
 	arr_nodes = [];
 	for(number in arr){
-		console.log(number);
-		getEdges(arr[number]);
-		//arr_nodes.push(new node(number, getEdges(arr[number])));
+		arr_nodes.push(new node(number, getEdges(arr[number])));
 	}
 }
 
 function getEdges(body){
-	var arr = body.toLowerCase().split('\n');
-
-	for(i in arr){
-		var found_line = arr[i].replace(/^\s+|\s+$/gm, '').match(/[a-z]+ #[0-9]+/);
+	var lines = body.toLowerCase().split('\n');
+	var edges = [];
+	for(i in lines){
+		var found_line = lines[i].replace(/^\s+|\s+$/gm, '').match(/[a-z]+ #[0-9]+/); //lines of '[word] #[number]'
 		if(found_line != null){
-			arr[i] = found_line[0];
+			edges[i] = new edge(found_line[0].match(/[0-9]+/)[0], found_line[0].match(/[a-z]+/)[0]);
 		}
 	}
-	console.log(arr);
+	return edges;
 }
 
 
