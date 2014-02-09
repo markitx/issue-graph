@@ -31,6 +31,8 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 			for (number in arr){
 				console.log(number +" "+ arr[number]);
 			}
+			console.log();
+			package(arr);
 		})
 
 
@@ -39,6 +41,28 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 	console.error( new Error('need argument'));
 	process.exit(1);
 }
+
+function package(arr) {//param: hashtable of number to msg body
+	arr_nodes = [];
+	for(number in arr){
+		console.log(number);
+		getEdges(arr[number]);
+		//arr_nodes.push(new node(number, getEdges(arr[number])));
+	}
+}
+
+function getEdges(body){
+	var arr = body.toLowerCase().split('\n');
+
+	for(i in arr){
+		var found_line = arr[i].replace(/^\s+|\s+$/gm, '').match(/[a-z]+ #[0-9]+/);
+		if(found_line != null){
+			arr[i] = found_line[0];
+		}
+	}
+	console.log(arr);
+}
+
 
 function node(number, edges) {
 	this.number = number; //issue number
