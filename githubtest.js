@@ -24,9 +24,43 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 			repo: "issue-graph"
 			//state: "open"
 		}, function(err, res) {
-			var arr = {}
+			if (err) {
+				console.log('Error!');
+				return console.log(err);
+			}
+			console.log(res);
+			var nodes = [];
+			var nodesByNumber = {};
+			var links = [];
+			var arr = {};
 			res.forEach( function(value) {
 				arr[value.number] = [value.title, value.body];
+				// copy over just the values we want
+				var node = {
+					id: '' + value.id,
+					number: value.number,
+					title: value.title,
+					body: value.body
+				};
+				nodes.push(node);
+				nodesByNumber['#' + node.number] = node;
+			});
+
+			var linkPattern = /#\d+/g;
+
+			nodes.forEach(function (node) {
+				var matches = node.body.match(linkPattern);
+				if (matches && matches.length > 0) {
+					matches.forEach(function (match) {
+						var linkedTo = nodesByNumber[match];
+						if (linkedTo) {
+							links.push({
+								source: { id: node.id },
+								target: { id: linkedTo.id }
+							});
+						}
+					});
+				}
 			});
 
 			//output for testing
@@ -35,10 +69,19 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 			}
 			console.log();
 
-
+			var graphData = {
+				nodes: nodes,
+				links: links
+			};
+			fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
+				if (err) {
+					return console.log(err);
+				}
+				console.log('graph-data.json udpated');
+			})
 
 			package(arr);//returns array of nodes
-		})
+		});
 
 
 	});
