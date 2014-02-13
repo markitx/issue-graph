@@ -13,9 +13,9 @@
   stroke-width: 1.5px;
 }
 
-.node.a { fill: #1f77b4; }
+/*.node.a { fill: #1f77b4; }
 .node.b { fill: #ff7f0e; }
-.node.c { fill: #2ca02c; }
+.node.c { fill: #2ca02c; }*/
 
 </style>
 <body>
@@ -48,12 +48,14 @@ var node = svg.selectAll(".node"),
 
 // 1. Add three nodes and three links.
 setTimeout(function() {
+  var nodebyID = {};
   graphData.nodes.forEach(function (node) {
+    nodebyID[node.id] = node;
     nodes.push(node);
   });
   graphData.links.forEach(function (link) {
     console.log(link);
-    links.push(link);
+    links.push({source: nodebyID[link.source.id], target: nodebyID[link.target.id]});
   });
   start();
 }, 0);

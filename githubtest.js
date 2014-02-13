@@ -28,13 +28,10 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 				console.log('Error!');
 				return console.log(err);
 			}
-			console.log(res);
 			var nodes = [];
 			var nodesByNumber = {};
 			var links = [];
-			var arr = {};
 			res.forEach( function(value) {
-				arr[value.number] = [value.title, value.body];
 				// copy over just the values we want
 				var node = {
 					id: '' + value.id,
@@ -63,16 +60,15 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 				}
 			});
 
-			//output for testing
-			for (number in arr){
-				console.log(number +" "+ arr[number][0] + " " + arr[number][1]);
-			}
-			console.log();
 
 			var graphData = {
 				nodes: nodes,
 				links: links
 			};
+
+			console.log(JSON.stringify(graphData, null, 2));
+
+
 			fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
 				if (err) {
 					return console.log(err);
@@ -80,7 +76,6 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 				console.log('graph-data.json udpated');
 			})
 
-			package(arr);//returns array of nodes
 		});
 
 
