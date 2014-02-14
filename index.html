@@ -7,15 +7,15 @@
   stroke-width: 1.5px;
 }
 
-.node {
-  fill: #000;
-  stroke: #fff;
-  stroke-width: 1.5px;
+.node text {
+  pointer-events: none;
+  font: 10px sans-serif;
 }
 
-/*.node.a { fill: #1f77b4; }
+
+.node.a { fill: #1f77b4; }
 .node.b { fill: #ff7f0e; }
-.node.c { fill: #2ca02c; }*/
+.node.c { fill: #2ca02c; }
 
 </style>
 <body>
@@ -66,16 +66,17 @@ function start() {
   link.enter().insert("line", ".node").attr("class", "link");
   link.exit().remove();
 
-  node = node.data(force.nodes(), function(d) { return d.id;});
-  node.enter().append("circle").attr("class", function(d) { return "node " + d.id; }).attr("r", 8);
+  node = node.data(force.nodes());
+  node.enter().append("g").attr("class", "node").call(force.drag);
+  node.append("circle").attr("class", function(d) { return "node " + d.id; }).attr("r", 8);
+  node.append("text").attr("dx", 12).attr("dy", ".35em").text(function(d) { return d.number });
   node.exit().remove();
 
   force.start();
 }
 
 function tick() {
-  node.attr("cx", function(d) { return d.x; })
-      .attr("cy", function(d) { return d.y; })
+  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
   link.attr("x1", function(d) { return d.source.x; })
       .attr("y1", function(d) { return d.source.y; })
