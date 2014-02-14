@@ -89,35 +89,53 @@ var path = svg.append("g").selectAll("path")
   .enter().append("path")
     .attr("class", function(d) { return "link " + d.type; })
     .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
-
-var circle = svg.append("g").selectAll("circle")
+// define the nodes
+var node = svg.selectAll(".node")
     .data(force.nodes())
-  .enter().append("circle")
-    .attr("r", 6)
+  .enter().append("g")
+    .attr("class", "node")
+    .on("click", click)
+    .on("dblclick", dblclick)
     .call(force.drag);
 
-var text = svg.append("g").selectAll("text")
-    .data(force.nodes())
-  .enter().append("text")
-    .attr("x", 8)
-    .attr("y", ".31em")
-    .text(function(d) { return d.title; });
+// add the nodes
+node.append("circle")
+    .attr("r", 5);
 
-// Use elliptical arc path segments to doubly-encode directionality.
+// add the text 
+node.append("text")
+    .attr("x", 12)
+    .attr("dy", ".35em")
+    .text(function(d) { return d.number; });
+
+// add the curvy lines
 function tick() {
-  path.attr("d", linkPath);
-  circle.attr("transform", transform);
-  text.attr("transform", transform);
+    path.attr("d", function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y;
+        return "M" + 
+            d.source.x + "," + 
+            d.source.y + "L" + 
+            d.target.x + "," + 
+            d.target.y;
+    });
+
+    node
+        .attr("transform", function(d) { 
+        return "translate(" + d.x + "," + d.y + ")"; });
 }
 
-function linkPath(d) {
-  var dx = d.target.x - d.source.x,
-      dy = d.target.y - d.source.y;
-  return "M" + d.source.x + "," + d.source.y + "L" + d.target.x + "," + d.target.y;
+// action to take on mouse click
+function click() {
+    d3.select(this).select("text").transition()
+        .duration(750)
+        .text(function(d) { return d.title; });
 }
 
-function transform(d) {
-  return "translate(" + d.x + "," + d.y + ")";
+// action to take on mouse double click
+function dblclick() {
+    d3.select(this).select("text").transition()
+        .duration(750)
+        .text(function(d) { return d.number; });
 }
-
 </script>
