@@ -53,7 +53,8 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 						if (linkedTo) {
 							links.push({
 								source: { id: node.id },
-								target: { id: linkedTo.id }
+								target: { id: linkedTo.id },
+								type: "n/a"
 							});
 						}
 					});
