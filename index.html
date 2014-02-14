@@ -57,6 +57,12 @@ graphData.links.forEach(function (link) {
 var width = 960,
     height = 500;
 
+var radius = 10,
+    markerWidth = 6,
+    markerHeight = 6,
+    refX = radius + (markerWidth * 2),
+    refY = 0;
+
 var force = d3.layout.force()
     .nodes(d3.values(nodes))
     .links(links)
@@ -76,10 +82,10 @@ svg.append("defs").selectAll("marker")
   .enter().append("marker")
     .attr("id", function(d) { return d; })
     .attr("viewBox", "0 -5 10 10")
-    .attr("refX", 15)
-    .attr("refY", -1.5)
-    .attr("markerWidth", 6)
-    .attr("markerHeight", 6)
+    .attr("refX", refX)
+    .attr("refY", refY)
+    .attr("markerWidth", markerWidth)
+    .attr("markerHeight", markerHeight)
     .attr("orient", "auto")
   .append("path")
     .attr("d", "M0,-5L10,0L0,5");
@@ -89,18 +95,18 @@ var path = svg.append("g").selectAll("path")
   .enter().append("path")
     .attr("class", function(d) { return "link " + d.type; })
     .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
+
 // define the nodes
 var node = svg.selectAll(".node")
     .data(force.nodes())
   .enter().append("g")
     .attr("class", "node")
-    .on("click", click)
-    .on("dblclick", dblclick)
+    .on("dblclick", click)
     .call(force.drag);
 
 // add the nodes
 node.append("circle")
-    .attr("r", 5);
+    .attr("r", radius);
 
 // add the text 
 node.append("text")
@@ -108,7 +114,8 @@ node.append("text")
     .attr("dy", ".35em")
     .text(function(d) { return d.number; });
 
-// add the curvy lines
+var longText = false; //If node is labeled with title (rather than number)
+
 function tick() {
     path.attr("d", function(d) {
         var dx = d.target.x - d.source.x,
@@ -125,17 +132,19 @@ function tick() {
         return "translate(" + d.x + "," + d.y + ")"; });
 }
 
-// action to take on mouse click
-function click() {
-    d3.select(this).select("text").transition()
-        .duration(750)
-        .text(function(d) { return d.title; });
-}
-
 // action to take on mouse double click
-function dblclick() {
+function click() {
+  if (longText){ //If displaying long text, display short text
+    d3.select(this).select("text").transition()
+      .duration(750)
+      .text(function(d) { return d.number; });
+    longText = !longText
+  } else { //If displaying short text, display long text
     d3.select(this).select("text").transition()
         .duration(750)
-        .text(function(d) { return d.number; });
+        .text(function(d) { return d.number + ": " + d.title; });
+    longText = !longText
+
+  }
 }
 </script>
