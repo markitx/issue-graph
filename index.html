@@ -67,7 +67,7 @@ var force = d3.layout.force()
     .nodes(d3.values(nodes))
     .links(links)
     .size([width, height])
-    .linkDistance(60)
+    .linkDistance(100)
     .charge(-300)
     .on("tick", tick)
     .start();
@@ -78,7 +78,7 @@ var svg = d3.select("body").append("svg")
 
 // Per-type markers, as they don't inherit styles.
 svg.append("defs").selectAll("marker")
-    .data(["n/a"])
+    .data(["Requires","Mentions"])
   .enter().append("marker")
     .attr("id", function(d) { return d; })
     .attr("viewBox", "0 -5 10 10")

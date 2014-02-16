@@ -43,18 +43,21 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 				nodesByNumber['#' + node.number] = node;
 			});
 
-			var linkPattern = /#\d+/g;
+			var linkPattern = /[a-z]* #\d+/gi;
 
 			nodes.forEach(function (node) {
 				var matches = node.body.match(linkPattern);
 				if (matches && matches.length > 0) {
 					matches.forEach(function (match) {
-						var linkedTo = nodesByNumber[match];
+						var type = match.match(/[a-z]*/i);
+						console.log(type);
+						var id = match.match(/#\d+/);
+						var linkedTo = nodesByNumber[id];
 						if (linkedTo) {
 							links.push({
 								source: { id: node.id },
 								target: { id: linkedTo.id },
-								type: "n/a"
+								type: type
 							});
 						}
 					});
