@@ -8,11 +8,11 @@
   stroke-width: 1.5px;
 }
 
-#licensing {
+#Mentions {
   fill: green;
 }
 
-.link.licensing {
+.link.Mentions {
   stroke: green;
 }
 
@@ -90,7 +90,6 @@ svg.append("defs").selectAll("marker")
   .append("path")
     .attr("d", "M0,-5L10,0L0,5");
 
-//TODO: Labels for paths http://bl.ocks.org/jhb/5955887
 //TODO: Labels for groups?
 
 
@@ -150,6 +149,18 @@ function tick() {
     node
         .attr("transform", function(d) { 
         return "translate(" + d.x + "," + d.y + ")"; });
+
+    path_label.attr('transform',function(d,i){
+        if (d.target.x<d.source.x){
+            bbox = this.getBBox();
+            rx = bbox.x+bbox.width/2;
+            ry = bbox.y+bbox.height/2;
+            return 'rotate(180 '+rx+' '+ry+')';
+        }
+        else {
+            return 'rotate(0)';
+        }
+    });
 }
 
 // action to take on mouse double click
