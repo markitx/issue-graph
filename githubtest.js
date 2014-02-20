@@ -20,8 +20,8 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 		});
 
 		github.issues.repoIssues({
-			user: "hjylewis",
-			repo: "issue-graph"
+			user: "markitx",
+			repo: "company"
 			//state: "open"
 		}, function(err, res) {
 			if (err) {
