@@ -43,13 +43,14 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 				nodesByNumber['#' + node.number] = node;
 			});
 
-			var linkPattern = /[a-z]* #\d+/gi;
+			var linkPattern = /[a-z]* ?#\d+/gi;
 
 			nodes.forEach(function (node) {
 				var matches = node.body.match(linkPattern);
 				if (matches && matches.length > 0) {
 					matches.forEach(function (match) {
 						var type = match.match(/[a-z]*/i);
+						if(type == "") type = "n/a";
 						console.log(type);
 						var id = match.match(/#\d+/);
 						var linkedTo = nodesByNumber[id];
