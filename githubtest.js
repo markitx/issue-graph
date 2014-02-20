@@ -50,13 +50,14 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 					return console.log(err);
 				}
 				var keywords = (JSON.parse(data).keywords);
-				keywords = new RegExp(keywords.join('|'),"i"); //regex for keywords
+				var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
+				keywords.push("n/a");
 
 				nodes.forEach(function (node) {
 					var matches = node.body.match(linkPattern);
 					if (matches && matches.length > 0) {
 						matches.forEach(function (match) {
-							var type = match.match(keywords);
+							var type = match.match(keywordRegEx);
 							if(type == null) type = "n/a";
 							console.log(type);
 							var id = match.match(/#\d+/);
@@ -74,6 +75,7 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 
 
 				var graphData = {
+					keywords: keywords,
 					nodes: nodes,
 					links: links
 				};

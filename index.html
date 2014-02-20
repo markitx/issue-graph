@@ -35,6 +35,7 @@ text {
 </style>
 <body>
 <script type="text/javascript" src="graph-data.json"></script>
+<script type="text/javascript" scr="keywords.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
 
@@ -78,7 +79,7 @@ var svg = d3.select("body").append("svg")
 
 // Per-type markers, as they don't inherit styles.
 svg.append("defs").selectAll("marker")
-    .data(["n/a","Requires","Mentions"])
+    .data(graphData.keywords)
   .enter().append("marker")
     .attr("id", function(d) { return d; })
     .attr("viewBox", "0 -5 10 10")
