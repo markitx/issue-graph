@@ -45,41 +45,49 @@ if (process.argv[2] != null) { //argument is a path to file containing oauth
 
 			var linkPattern = /[a-z]* ?#\d+/gi;
 
-			nodes.forEach(function (node) {
-				var matches = node.body.match(linkPattern);
-				if (matches && matches.length > 0) {
-					matches.forEach(function (match) {
-						var type = match.match(/[a-z]*/i);
-						if(type == "") type = "n/a";
-						console.log(type);
-						var id = match.match(/#\d+/);
-						var linkedTo = nodesByNumber[id];
-						if (linkedTo) {
-							links.push({
-								source: { id: node.id },
-								target: { id: linkedTo.id },
-								type: type
-							});
-						}
-					});
-				}
-			});
-
-
-			var graphData = {
-				nodes: nodes,
-				links: links
-			};
-
-			console.log(JSON.stringify(graphData, null, 2));
-
-
-			fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
+			fs.readFile("keywords.json", 'utf8', function (err, data) {
 				if (err) {
 					return console.log(err);
 				}
-				console.log('graph-data.json udpated');
-			})
+				var keywords = (JSON.parse(data).keywords);
+				keywords = new RegExp(keywords.join('|'),"i"); //regex for keywords
+
+				nodes.forEach(function (node) {
+					var matches = node.body.match(linkPattern);
+					if (matches && matches.length > 0) {
+						matches.forEach(function (match) {
+							var type = match.match(keywords);
+							if(type == null) type = "n/a";
+							console.log(type);
+							var id = match.match(/#\d+/);
+							var linkedTo = nodesByNumber[id];
+							if (linkedTo) {
+								links.push({
+									source: { id: node.id },
+									target: { id: linkedTo.id },
+									type: type
+								});
+							}
+						});
+					}
+				});
+
+
+				var graphData = {
+					nodes: nodes,
+					links: links
+				};
+
+				console.log(JSON.stringify(graphData, null, 2));
+
+
+				fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
+					if (err) {
+						return console.log(err);
+					}
+					console.log('graph-data.json udpated');
+				})
+			});
 
 		});
 
