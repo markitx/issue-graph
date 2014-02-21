@@ -63,7 +63,7 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 						nodesByNumber["markitx/" +node.repo + '#' + node.number] = node;
 					});
 
-					var linkPattern = /[a-z-_/]* ?#\d+/gi;
+					var linkPattern = /[a-z]* ?[a-z-_/]* ?#\d+/gi;
 					var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
 
 					nodes.forEach(function (node) {
@@ -74,7 +74,6 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 								if(type == null) type = "n/a";
 								var id = match.match(/[a-z-_/]+#\d+/i);
 								if (id && id.length >0) {
-									//console.log(id[0]);//DEBUG
 									var linkedTo = nodesByNumber[id];
 								} else {
 									var id = match.match(/#\d+/);
