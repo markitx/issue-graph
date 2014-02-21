@@ -4,131 +4,107 @@ var fs = require('fs');
 var oauth = "";
 
 
-if (process.argv[2] != null) { //argument is a path to file containing oauth
-	fs.readFile(process.argv[2], 'utf8', function (err, data) {
-		var oauth = data;
+	//argument is a path to file containing oauth
+fs.readFile("oauth", 'utf8', function (err, data) {
+	if (err){
+		console.error("Error: missing oauth file");
+		process.exit(-1);
+	}
+	var oauth = data;
 
-		var github = new GitHubApi({
-			version: '3.0.0',
-		});
+	var github = new GitHubApi({
+		version: '3.0.0',
+	});
 
 
 
-		github.authenticate({
-			type: "oauth",
-			token: oauth
-		});
+	github.authenticate({
+		type: "oauth",
+		token: oauth
+	});
 
-		github.issues.repoIssues({
-			user: "markitx",
-			repo: "company"
-			//state: "open"
+	fs.readFile("keywords.json", 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
+		}
+		var keywords = (JSON.parse(data).keywords);
+		keywords.push("n/a");
+		var nodes = [];
+		var links = [];
+
+		github.repos.getFromOrg({
+			org: "markitx"
 		}, function(err, res) {
-			if (err) {
-				console.log('Error!');
-				return console.log(err);
-			}
-			var nodes = [];
-			var nodesByNumber = {};
-			var links = [];
-			res.forEach( function(value) {
-				// copy over just the values we want
-				var node = {
-					id: '' + value.id,
-					number: value.number,
-					title: value.title,
-					body: value.body
-				};
-				nodes.push(node);
-				nodesByNumber['#' + node.number] = node;
-			});
-
-			var linkPattern = /[a-z]* ?#\d+/gi;
-
-			fs.readFile("keywords.json", 'utf8', function (err, data) {
-				if (err) {
-					return console.log(err);
-				}
-				var keywords = (JSON.parse(data).keywords);
-				var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
-				keywords.push("n/a");
-
-				nodes.forEach(function (node) {
-					var matches = node.body.match(linkPattern);
-					if (matches && matches.length > 0) {
-						matches.forEach(function (match) {
-							var type = match.match(keywordRegEx);
-							if(type == null) type = "n/a";
-							console.log(type);
-							var id = match.match(/#\d+/);
-							var linkedTo = nodesByNumber[id];
-							if (linkedTo) {
-								links.push({
-									source: { id: node.id },
-									target: { id: linkedTo.id },
-									type: type
-								});
-							}
-						});
-					}
-				});
-
-
-				var graphData = {
-					keywords: keywords,
-					nodes: nodes,
-					links: links
-				};
-
-				console.log(JSON.stringify(graphData, null, 2));
-
-
-				fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
+			var count = 0;
+			var repos = [];
+			var repos_length = res.length;
+			res.forEach( function(repo,index) { //repo is each repo in org
+				repos.push(repo.name);
+				github.issues.repoIssues({
+					user: "markitx",
+					repo: repo.name
+					//state: "open"
+				}, function(err, res) {
 					if (err) {
+						console.log('Error!');
 						return console.log(err);
 					}
-					console.log('graph-data.json udpated');
-				})
+					var nodesByNumber = {};
+					res.forEach( function(value) {
+						// copy over just the values we want
+						var node = {
+							id: '' + value.id,
+							number: value.number,
+							title: value.title,
+							body: value.body,
+							repo: repo.name
+						};
+						nodes.push(node);
+						nodesByNumber['#' + node.number] = node;
+					});
+
+					var linkPattern = /[a-z]* ?#\d+/gi;
+					var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
+
+					nodes.forEach(function (node) {
+						var matches = node.body.match(linkPattern);
+						if (matches && matches.length > 0) {
+							matches.forEach(function (match) {
+								var type = match.match(keywordRegEx);
+								if(type == null) type = "n/a";
+								var id = match.match(/#\d+/);
+								var linkedTo = nodesByNumber[id];
+								if (linkedTo) {
+									links.push({
+										source: { id: node.id },
+										target: { id: linkedTo.id },
+										type: type
+									});
+								}
+							});
+						}
+					});
+					count++;
+					if(count == repos_length){
+						var graphData = {
+							keywords: keywords,
+							repos: repos,
+							nodes: nodes,
+							links: links
+						};
+						//console.log(JSON.stringify(graphData, null, 2));
+
+						fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
+							if (err) {
+								return console.log(err);
+							}
+						console.log('graph-data.json udpated');
+						});
+					}
+
+				});
 			});
 
 		});
-
-
 	});
-} else {
-	console.error( new Error('need argument'));
-	process.exit(1);
-}
-
-function package(arr) {//param: hashtable of number to msg body
-	var arr_nodes = [];
-	for(number in arr){
-		arr_nodes.push(new node(number, arr[number][0], getEdges(arr[number][1])));
-	}
-	return arr_nodes;
-}
-
-function getEdges(body){//takes issue body text, parses it and returns array of edges
-	var lines = body.toLowerCase().split('\n');
-	var edges = [];
-	for(i in lines){
-		var found_line = lines[i].replace(/^\s+|\s+$/gm, '').match(/[a-z]+ #[0-9]+/); //lines of '[word] #[number]'
-		if(found_line != null){
-			edges[i] = new edge(found_line[0].match(/[0-9]+/)[0], found_line[0].match(/[a-z]+/)[0]);
-		}
-	}
-	return edges;
-}
-
-
-function node(number, title, edges) {
-	this.number = number; //issue number
-	this.title = title; //issue title
-	this.edges = edges; //array of paths
-}
-
-
-function edge(dest, type) {
-	this.dest = dest; //mentioned issue
-	this.ptype = type; //type of mention
-}
+});
