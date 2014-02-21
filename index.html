@@ -8,6 +8,12 @@
   stroke-width: 1.5px;
 }
 
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
 #Mentions {
   fill: green;
 }
@@ -54,8 +60,8 @@ graphData.links.forEach(function (link) {
 });
 
 
-var width = 3000,
-    height = 1500;
+var width = 1000,
+    height = 600;
 
 //circle and arrow variables
 var radius = 10, //radius of circles
@@ -75,7 +81,14 @@ var force = d3.layout.force()
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+
+
+svg.append("rect")
+    .attr("class", "overlay")
+    .attr("width", width)
+    .attr("height", height)
+    .call(d3.behavior.zoom().on("zoom", zoom));
 
 // Per-type markers, as they don't inherit styles.
 svg.append("defs").selectAll("marker")
@@ -186,5 +199,8 @@ function click() {
     longText = !longText
 
   }
+}
+function zoom() {
+  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 </script>
