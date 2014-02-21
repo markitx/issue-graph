@@ -60,8 +60,8 @@ graphData.links.forEach(function (link) {
 });
 
 
-var width = 1000,
-    height = 600;
+var width = window.innerWidth,
+    height = window.innerHeight;
 
 //circle and arrow variables
 var radius = 10, //radius of circles
@@ -82,13 +82,16 @@ var force = d3.layout.force()
 var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height)
+  .append("g")
+    .call(d3.behavior.zoom().scaleExtent([0.5, 2]).on("zoom", zoom))
+  .append("g");
 
 
-svg.append("rect")
+var rect = svg.append("rect")
     .attr("class", "overlay")
-    .attr("width", width)
-    .attr("height", height)
-    .call(d3.behavior.zoom().on("zoom", zoom));
+    .attr("width", "100%")
+    .attr("height", "100%");
+    
 
 // Per-type markers, as they don't inherit styles.
 svg.append("defs").selectAll("marker")
@@ -146,6 +149,10 @@ node.append("text")
     .attr("dy", ".35em")
     .text(function(d) { return d.number; });
 
+
+
+
+
 var longText = false; //If node is labeled with title (rather than number)
 
 function label(d){
@@ -167,22 +174,12 @@ function tick() {
             d.target.y;
     });
 
+    rect.attr("width", "100%").attr("height", "100%");
+
 
     node
         .attr("transform", function(d) { 
         return "translate(" + d.x + "," + d.y + ")"; });
-
-    // path_label.attr('transform',function(d,i){
-    //     if (d.target.x<d.source.x){
-    //         bbox = this.getBBox();
-    //         rx = bbox.x+bbox.width/2;
-    //         ry = bbox.y+bbox.height/2;
-    //         return 'rotate(180 '+rx+' '+ry+')';
-    //     }
-    //     else {
-    //         return 'rotate(0)';
-    //     }
-    // });
 }
 
 // action to take on mouse double click
