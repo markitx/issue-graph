@@ -63,7 +63,7 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 						nodesByNumber["markitx/" +node.repo + '#' + node.number] = node;
 					});
 
-					var linkPattern = /[a-z]* ?[a-z-_/]* ?#\d+/gi;
+					var linkPattern = /[a-z]* ?[a-z-_/]*#\d+/gi;
 					var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
 
 					nodes.forEach(function (node) {
@@ -77,14 +77,18 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 									var linkedTo = nodesByNumber[id];
 								} else {
 									var id = match.match(/#\d+/);
+									console.log(id);
+
 									if (id && id.length >0) {
+										console.log("markitx/" + node.repo + id[0].replace(/ /, ""));
 										var linkedTo = nodesByNumber["markitx/" + node.repo + id[0].replace(/ /, "")];
+										console.log(linkedTo);
 									}
 								}
 								if (linkedTo) {
 									links.push({
-										source: { id: node.id },
-										target: { id: linkedTo.id },
+										source: node,
+										target: linkedTo,
 										type: type
 									});
 								}
@@ -100,7 +104,7 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 							nodes: nodes,
 							links: links
 						};
-						//console.log(JSON.stringify(graphData, null, 2));
+						console.log(JSON.stringify(graphData, null, 2));
 
 						fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
 							if (err) {
