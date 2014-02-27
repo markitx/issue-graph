@@ -77,12 +77,9 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 									var linkedTo = nodesByNumber[id];
 								} else {
 									var id = match.match(/#\d+/);
-									console.log(id);
 
 									if (id && id.length >0) {
-										console.log("markitx/" + node.repo + id[0].replace(/ /, ""));
 										var linkedTo = nodesByNumber["markitx/" + node.repo + id[0].replace(/ /, "")];
-										console.log(linkedTo);
 									}
 								}
 								if (linkedTo) {

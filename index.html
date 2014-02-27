@@ -14,11 +14,11 @@
   pointer-events: all;
 }
 
-#Mentions {
+#Requires {
   fill: green;
 }
 
-.link.Mentions {
+.link.Requires {
   stroke: green;
 }
 
@@ -49,25 +49,18 @@ var links = [];
 
 var nodes = {};
 
-var nodebyID = {};
-
+var repos = [];
 
 graphData.links.forEach(function (link) {
-  console.log(link);
-  if (nodes[link.source.id]){
-    link.source = nodes[link.source.id];
-  } else {
-    nodes[link.source.id] = link.source;
-  }
-  if (nodes[link.target.id]){
-    link.target = nodes[link.target.id];
-  } else {
-    nodes[link.target.id] = link.target;
-  }
+  link.source = nodes[link.source.id] || (nodes[link.source.id] = link.source);
+  link.target = nodes[link.target.id] || (nodes[link.target.id] = link.target);
   links.push({source: link.source, target: link.target, type: link.type});
-
+  console.log(links.length);
 });
 
+graphData.repos.forEach(function (repo) {
+  repos.push(repo);
+});
 
 var width = window.innerWidth,
     height = window.innerHeight;
