@@ -22,7 +22,7 @@
   stroke: green;
 }
 
-.link.resolved {
+.link.Requires {
   stroke-dasharray: 0,2 1;
 }
 
@@ -43,30 +43,57 @@ text {
 <script type="text/javascript" src="graph-data.json"></script>
 <script type="text/javascript" scr="keywords.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<input type='button' id='b' value='Scale' class="btn"></input>
+<div id='d'></div>
 <script>
+var width = window.innerWidth *.7,
+    height = window.innerHeight *.7;
+
 
 var links = [];
 
 var nodes = {};
 
-var repos = [];
+var repos = {};
+
+//foci = [{x: 150, y: 150}, {x: 350, y: 250}, {x: 700, y: 400}];
 
 graphData.links.forEach(function (link) {
   link.source = nodes[link.source.id] || (nodes[link.source.id] = link.source);
   link.target = nodes[link.target.id] || (nodes[link.target.id] = link.target);
   links.push({source: link.source, target: link.target, type: link.type});
-  console.log(links.length);
+  repos[link.source.repo] = link.source.repo;
+  repos[link.target.repo] = link.target.repo;
 });
 
-graphData.repos.forEach(function (repo) {
-  repos.push(repo);
-});
 
-var width = window.innerWidth,
-    height = window.innerHeight;
+
+d3.values(repos).forEach( function(repo, i) {
+  var hue = i * 360 /d3.values(repos).length;
+  repos[repo] = d3.hsl(hue, .5, .5);
+  console.log(d3.random.normal());
+});
+//console.log(repos);
+
+// d3.values(nodes).forEach( function(node) {
+//   links.push({source: node, target: repos[node.repo], type: "n/a"});
+// });
+// var nodes = [];
+
+// var nodebyID = {};
+// graphData.nodes.forEach(function (node) {
+//   nodebyID[node.id] = node;
+//   nodes.push(node);
+// });
+// graphData.links.forEach(function (link) {
+//   links.push({source: nodebyID[link.source.id], target: nodebyID[link.target.id], type: link.type});
+// });
+
+
+
 
 //circle and arrow variables
-var radius = 10, //radius of circles
+var radius = 10 //radius of circles
     markerWidth = 6,
     markerHeight = 6,
     refX = radius + (markerWidth * 2),
@@ -81,17 +108,24 @@ var force = d3.layout.force()
     .on("tick", tick)
     .start();
 
-var svg = d3.select("body").append("svg")
+d3.select('#b').on( 'click', function() {
+  originalScale();
+});
+
+var svg = d3.select("#d").append("svg")
     .attr("width", width)
     .attr("height", height)
   .append("g")
   .append("g");
 
+var zoom = d3.behavior.zoom()
+    .scaleExtent([1, 3])
+    .on("zoom", zoomed);
 
 var rect = svg.append("rect")
     .attr("class", "overlay")
     .attr("width", "100%")
-    .call(d3.behavior.zoom().scaleExtent([0.5, 2]).on("zoom", zoom))
+    .call(zoom)
     .attr("height", "100%");
     
 
@@ -144,16 +178,20 @@ var node = svg.selectAll(".node")
 
 // add the nodes
 node.append("circle")
+    .style("fill", function(d) {
+      return repos[d.repo];
+    })
     .attr("r", radius);
 
 // add the text 
 node.append("text")
     .attr("x", 12)
     .attr("dy", ".35em")
-    .text(function(d) { return d.number; });
-
-
-
+    .text(function(d) { if(d.number == 0){
+      return d.title;
+    } else {
+      return d.number;
+    }});
 
 
 var longText = false; //If node is labeled with title (rather than number)
@@ -166,7 +204,7 @@ function label(d){
   }
 }
 
-function tick() {
+function tick(e) {
     path.attr("d", function(d) {
         var dx = d.target.x - d.source.x,
             dy = d.target.y - d.source.y;
@@ -177,6 +215,21 @@ function tick() {
             d.target.y;
     });
 
+
+    // console.log(repos["file-import"].x);
+
+    // var k = .1 * e.alpha;
+
+    // // Push nodes toward their designated focus.
+    // force.nodes().forEach(function(o, i) {
+    //   if(o.number != 0){
+    //     o.y += (repos[o.repo].y - o.y) * k;
+    //     o.x += (repos[o.repo].x - o.x) * k;
+    //   }
+    // });
+
+
+
     var xs = [];
     var ys = [];
 
@@ -185,7 +238,6 @@ function tick() {
       ys.push(d.y);
     });
 
-    console.log(d3.max(xs));
 
     rect
       .attr("x", d3.min(xs))
@@ -197,6 +249,38 @@ function tick() {
     node
         .attr("transform", function(d) { 
         return "translate(" + d.x + "," + d.y + ")"; });
+}
+
+
+function originalScale(){
+    var xs = [];
+    var ys = [];
+
+    force.nodes().forEach( function(d) {
+      xs.push(d.x);
+      ys.push(d.y);
+    });
+    var dx = 0;
+    var dy = 0;
+    if(d3.min(xs)<0){
+      dx = -1 * d3.min(xs);
+    }
+    if(d3.min(ys)<0){
+      dy = -1 * d3.min(ys);
+    }
+    var sc = d3.min([width/(d3.max(xs)+dx),height/(d3.max(ys)+dy)]);
+
+
+
+    console.log(zoom.scale()/2);
+
+    zoom.scale( zoom.scale()/2 ); 
+    zoomed();
+
+    // if((d3.max(xs) + dx)>width || (d3.max(ys)+dy)>height){
+    //   svg.attr("transform", "translate(" + dx*sc + "," + dy*sc + ")scale(" + sc + ")");
+    // }
+    // svg.attr("transform", "translate(" + dx + "," + dy + ")scale(" + 1 + ")");
 }
 
 // action to take on mouse double click
@@ -214,7 +298,7 @@ function click() {
 
   }
 }
-function zoom() {
+function zoomed() {
   svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 }
 </script>
