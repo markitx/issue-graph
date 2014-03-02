@@ -45,10 +45,17 @@ text {
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <input type='button' id='b' value='Scale' class="btn"></input>
 <div id='d'></div>
+<div id='s'></div>
 <script>
 var width = window.innerWidth *.7,
     height = window.innerHeight *.7;
-
+var descriptNode = {
+  id: '',
+  number: '',
+  title: '',
+  body: '',
+  repo: ''
+};
 
 var links = [];
 
@@ -112,6 +119,12 @@ d3.select('#b').on( 'click', function() {
   originalScale();
 });
 
+var description = d3.select("#s")
+    .append("text")
+    .attr('class', 'description');
+
+
+
 var svg = d3.select("#d").append("svg")
     .attr("width", width)
     .attr("height", height)
@@ -173,7 +186,8 @@ var node = svg.selectAll(".node")
     .data(force.nodes())
   .enter().append("g")
     .attr("class", "node")
-    .on("dblclick", click)
+//    .on("dblclick", click)
+    .on("dblclick", function(d) { descriptNode = d;})
     .call(force.drag);
 
 // add the nodes
@@ -249,6 +263,9 @@ function tick(e) {
     node
         .attr("transform", function(d) { 
         return "translate(" + d.x + "," + d.y + ")"; });
+
+    updateDescription();
+
 }
 
 
@@ -282,21 +299,29 @@ function originalScale(){
     // }
     // svg.attr("transform", "translate(" + dx + "," + dy + ")scale(" + 1 + ")");
 }
-
+function updateDescription(){
+  d3.select("text.description").html("<b>Title: </b>"+descriptNode.title+
+                                    "<br/><b>Number: </b>"+descriptNode.number+
+                                    "<br/><b>Body: </b>"+descriptNode.body+
+                                    "<br/><b>ID: </b>"+descriptNode.id+
+                                    "<br/><b>Repo: </b>"+descriptNode.repo);
+}
 // action to take on mouse double click
 function click() {
-  if (longText){ //If displaying long text, display short text
-    d3.select(this).select("text").transition()
-      .duration(750)
-      .text(function(d) { return d.number; });
-    longText = !longText
-  } else { //If displaying short text, display long text
-    d3.select(this).select("text").transition()
-        .duration(750)
-        .text(function(d) { return d.number + ": " + d.title; });
-    longText = !longText
+    d3.select(this)
 
-  }
+  // if (longText){ //If displaying long text, display short text
+  //   d3.select(this).select("text").transition()
+  //     .duration(750)
+  //     .text(function(d) { return d.number; });
+  //   longText = !longText
+  // } else { //If displaying short text, display long text
+  //   d3.select(this).select("text").transition()
+  //       .duration(750)
+  //       .text(function(d) { return d.number + ": " + d.title; });
+  //   longText = !longText
+
+  // }
 }
 function zoomed() {
   svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
