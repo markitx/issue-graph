@@ -29,7 +29,6 @@
 circle {
   fill: #ccc;
   stroke: #333;
-  stroke-width: 1.5px;
 }
 
 text {
@@ -61,7 +60,7 @@ var links = [];
 
 var nodes = {};
 
-var repos = {};
+var repoColor = {};
 
 //foci = [{x: 150, y: 150}, {x: 350, y: 250}, {x: 700, y: 400}];
 
@@ -69,21 +68,20 @@ graphData.links.forEach(function (link) {
   link.source = nodes[link.source.id] || (nodes[link.source.id] = link.source);
   link.target = nodes[link.target.id] || (nodes[link.target.id] = link.target);
   links.push({source: link.source, target: link.target, type: link.type});
-  repos[link.source.repo] = link.source.repo;
-  repos[link.target.repo] = link.target.repo;
+  repoColor[link.source.repo] = link.source.repo;
+  repoColor[link.target.repo] = link.target.repo;
 });
 
 
 
-d3.values(repos).forEach( function(repo, i) {
-  var hue = i * 360 /d3.values(repos).length;
-  repos[repo] = d3.hsl(hue, .5, .5);
-  console.log(d3.random.normal());
+d3.values(repoColor).forEach( function(repo, i) {
+  var hue = i * 360 /d3.values(repoColor).length;
+  repoColor[repo] = d3.hsl(hue, .5, .5);
 });
-//console.log(repos);
+//console.log(repoColor);
 
 // d3.values(nodes).forEach( function(node) {
-//   links.push({source: node, target: repos[node.repo], type: "n/a"});
+//   links.push({source: node, target: repoColor[node.repo], type: "n/a"});
 // });
 // var nodes = [];
 
@@ -121,6 +119,7 @@ d3.select('#b').on( 'click', function() {
 
 var description = d3.select("#s")
     .append("text")
+    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>")
     .attr('class', 'description');
 
 
@@ -187,20 +186,25 @@ var node = svg.selectAll(".node")
   .enter().append("g")
     .attr("class", "node")
 //    .on("dblclick", click)
-    .on("dblclick", function(d) { descriptNode = d;})
+    //.on("click", click)
+
+    .on("click", function(d) { click(d);})
     .call(force.drag);
 
 // add the nodes
 node.append("circle")
     .style("fill", function(d) {
-      return repos[d.repo];
+      return repoColor[d.repo];
     })
+    .attr("class", function(d) { return 'c' + d.id; })
+    .attr("stroke-width", "1.5px")
     .attr("r", radius);
 
 // add the text 
 node.append("text")
     .attr("x", 12)
     .attr("dy", ".35em")
+
     .text(function(d) { if(d.number == 0){
       return d.title;
     } else {
@@ -230,15 +234,15 @@ function tick(e) {
     });
 
 
-    // console.log(repos["file-import"].x);
+    // console.log(repoColor["file-import"].x);
 
     // var k = .1 * e.alpha;
 
     // // Push nodes toward their designated focus.
     // force.nodes().forEach(function(o, i) {
     //   if(o.number != 0){
-    //     o.y += (repos[o.repo].y - o.y) * k;
-    //     o.x += (repos[o.repo].x - o.x) * k;
+    //     o.y += (repoColor[o.repo].y - o.y) * k;
+    //     o.x += (repoColor[o.repo].x - o.x) * k;
     //   }
     // });
 
@@ -264,7 +268,6 @@ function tick(e) {
         .attr("transform", function(d) { 
         return "translate(" + d.x + "," + d.y + ")"; });
 
-    updateDescription();
 
 }
 
@@ -289,7 +292,6 @@ function originalScale(){
 
 
 
-    console.log(zoom.scale()/2);
 
     zoom.scale( zoom.scale()/2 ); 
     zoomed();
@@ -299,17 +301,22 @@ function originalScale(){
     // }
     // svg.attr("transform", "translate(" + dx + "," + dy + ")scale(" + 1 + ")");
 }
-function updateDescription(){
-  d3.select("text.description").html("<b>Title: </b>"+descriptNode.title+
+// action to take on mouse double click
+function click(d) {
+  console.long("click");
+  d3.select("circle.c" + descriptNode.id).transition()
+      .duration(750)
+      .attr("stroke-width", "1.5px");
+  descriptNode = d; 
+  d3.select("circle.c" + descriptNode.id).transition()
+      .duration(750)
+      .attr("stroke-width", "5px");
+  d3.select("text.description")
+      .html("<b>Title: </b>"+descriptNode.title+
                                     "<br/><b>Number: </b>"+descriptNode.number+
                                     "<br/><b>Body: </b>"+descriptNode.body+
                                     "<br/><b>ID: </b>"+descriptNode.id+
                                     "<br/><b>Repo: </b>"+descriptNode.repo);
-}
-// action to take on mouse double click
-function click() {
-    d3.select(this)
-
   // if (longText){ //If displaying long text, display short text
   //   d3.select(this).select("text").transition()
   //     .duration(750)
