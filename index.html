@@ -40,8 +40,8 @@ text {
 </style>
 <body>
 <script type="text/javascript" src="graph-data.json"></script>
-<script type="text/javascript" scr="keywords.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="alterGit.js"></script>
 <input type='button' id='b' value='Scale' class="btn"></input>
 <div id='d'></div>
 <div id='s'></div>
@@ -137,7 +137,7 @@ var zoom = d3.behavior.zoom()
 var rect = svg.append("rect")
     .attr("class", "overlay")
     .attr("width", "100%")
-    .call(zoom)
+    //.call(zoom)
     .attr("height", "100%");
     
 
@@ -232,6 +232,8 @@ function tick(e) {
             d.target.x + "," + 
             d.target.y;
     });
+
+
 
 
     // console.log(repoColor["file-import"].x);
