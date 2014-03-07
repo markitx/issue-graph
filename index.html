@@ -26,6 +26,12 @@
   stroke-dasharray: 0,2 1;
 }
 
+div#d {
+  height: 500px;
+  width: 100%;
+  overflow: scroll;
+ }
+
 circle {
   fill: #ccc;
   stroke: #333;
@@ -46,8 +52,8 @@ text {
 <div id='d'></div>
 <div id='s'></div>
 <script>
-var width = window.innerWidth *.7,
-    height = window.innerHeight *.7;
+var width = window.innerWidth *1,
+    height = window.innerHeight *1;
 var descriptNode = {
   id: '',
   number: '',
@@ -131,7 +137,7 @@ var svg = d3.select("#d").append("svg")
   .append("g");
 
 var zoom = d3.behavior.zoom()
-    .scaleExtent([1, 3])
+    .scaleExtent([0, 3])
     .on("zoom", zoomed);
 
 var rect = svg.append("rect")
