@@ -45,7 +45,7 @@ text {
 <div id='s'></div>
 <input type='button' id='b' value='Hide' class="btn"></input>
 <script>
-var width = window.innerWidth *.8,
+var width = window.innerWidth *.9,
     height = window.innerHeight *1;
 var descriptNode = {
   id: '',
@@ -61,7 +61,6 @@ var nodes = {};
 
 var repoColor = {};
 
-//foci = [{x: 150, y: 150}, {x: 350, y: 250}, {x: 700, y: 400}];
 
 graphData.links.forEach(function (link) {
   link.source = nodes[link.source.id] || (nodes[link.source.id] = link.source);
@@ -77,7 +76,6 @@ d3.values(repoColor).forEach( function(repo, i) {
   var hue = i * 360 /d3.values(repoColor).length;
   repoColor[repo] = d3.hsl(hue, .5, .5);
 });
-//console.log(repoColor);
 
 // d3.values(nodes).forEach( function(node) {
 //   links.push({source: node, target: repoColor[node.repo], type: "n/a"});
@@ -156,12 +154,6 @@ svg.append("defs").selectAll("marker")
     .attr("d", "M0,-5L10,0L0,5")
     .attr("fill", "#666")
     .attr("stroke", "#666");
-
-
-//TODO: Labels for groups?
-//work with http://bl.ocks.org/nsonnad/5993342#style.css
-
-
 
 var path = svg.append("g").selectAll("path")
     .data(force.links())
@@ -276,7 +268,10 @@ function tick(e) {
 
 
 function hide(){
+  console.log(Object.keys(force.nodes()).length);
   delete nodes[descriptNode.id];
+  console.log(Object.keys(force.nodes()).length);
+
 }
 // action to take on mouse double click
 function click(d) {
