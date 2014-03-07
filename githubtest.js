@@ -52,7 +52,6 @@ fs.readFile("oauth", 'utf8', function (err, data) {
 });
 
 function getIssues(github,name,pageN,repos_length){
-	console.log(count);
 	github.issues.repoIssues({
 		user: "markitx",
 		repo: name,
@@ -60,12 +59,11 @@ function getIssues(github,name,pageN,repos_length){
 		per_page: 100
 		//state: "open"
 	}, function(err, res) {
-		//console.log(res.length);
+		//conole.log(res.length);
 		if (err) {
 			console.log('Error!');
 			return console.log(err);
 		}
-		//console.log(res.length);
 		res.forEach( function(value) {
 			// copy over just the values we want
 			var node = {
