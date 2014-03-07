@@ -29,7 +29,8 @@
 div#d {
   height: 500px;
   width: 100%;
-  overflow: scroll;
+  border:2px solid #000;
+  overflow: auto;
  }
 
 circle {
@@ -52,7 +53,7 @@ text {
 <div id='d'></div>
 <div id='s'></div>
 <script>
-var width = window.innerWidth *1,
+var width = window.innerWidth *.8,
     height = window.innerHeight *1;
 var descriptNode = {
   id: '',
