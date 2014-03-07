@@ -14,13 +14,6 @@
   pointer-events: all;
 }
 
-#Requires {
-  fill: green;
-}
-
-.link.Requires {
-  stroke: green;
-}
 
 .link.Requires {
   stroke-dasharray: 0,2 1;
@@ -48,10 +41,9 @@ text {
 <body>
 <script type="text/javascript" src="graph-data.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<script src="alterGit.js"></script>
-<input type='button' id='b' value='Scale' class="btn"></input>
 <div id='d'></div>
 <div id='s'></div>
+<input type='button' id='b' value='Hide' class="btn"></input>
 <script>
 var width = window.innerWidth *.8,
     height = window.innerHeight *1;
@@ -121,7 +113,8 @@ var force = d3.layout.force()
     .start();
 
 d3.select('#b').on( 'click', function() {
-  originalScale();
+  console.log("test");
+  hide();
 });
 
 var description = d3.select("#s")
@@ -160,7 +153,10 @@ svg.append("defs").selectAll("marker")
     .attr("markerHeight", markerHeight)
     .attr("orient", "auto")
   .append("path")
-    .attr("d", "M0,-5L10,0L0,5");
+    .attr("d", "M0,-5L10,0L0,5")
+    .attr("fill", "#666")
+    .attr("stroke", "#666");
+
 
 //TODO: Labels for groups?
 //work with http://bl.ocks.org/nsonnad/5993342#style.css
@@ -182,8 +178,6 @@ var path_label = svg.append("g").selectAll(".path_label")
       .attr("startOffset", "50%")
       .attr("text-anchor", "middle")
       .attr("xlink:href", function(d) { return "#" + d.source.id + "_" + d.target.id; })
-      .style("fill", "#000")
-      .style("font-family", "Arial")
       .text(function(d) { return label(d); });
 
 
@@ -281,34 +275,8 @@ function tick(e) {
 }
 
 
-function originalScale(){
-    var xs = [];
-    var ys = [];
-
-    force.nodes().forEach( function(d) {
-      xs.push(d.x);
-      ys.push(d.y);
-    });
-    var dx = 0;
-    var dy = 0;
-    if(d3.min(xs)<0){
-      dx = -1 * d3.min(xs);
-    }
-    if(d3.min(ys)<0){
-      dy = -1 * d3.min(ys);
-    }
-    var sc = d3.min([width/(d3.max(xs)+dx),height/(d3.max(ys)+dy)]);
-
-
-
-
-    zoom.scale( zoom.scale()/2 ); 
-    zoomed();
-
-    // if((d3.max(xs) + dx)>width || (d3.max(ys)+dy)>height){
-    //   svg.attr("transform", "translate(" + dx*sc + "," + dy*sc + ")scale(" + sc + ")");
-    // }
-    // svg.attr("transform", "translate(" + dx + "," + dy + ")scale(" + 1 + ")");
+function hide(){
+  delete nodes[descriptNode.id];
 }
 // action to take on mouse double click
 function click(d) {
