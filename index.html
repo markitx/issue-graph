@@ -77,6 +77,8 @@ d3.values(repoColor).forEach( function(repo, i) {
   repoColor[repo] = d3.hsl(hue, .5, .5);
 });
 
+
+
 // d3.values(nodes).forEach( function(node) {
 //   links.push({source: node, target: repoColor[node.repo], type: "n/a"});
 // });
@@ -91,6 +93,13 @@ d3.values(repoColor).forEach( function(repo, i) {
 //   links.push({source: nodebyID[link.source.id], target: nodebyID[link.target.id], type: link.type});
 // });
 
+var path;
+var path_label;
+var node;
+
+
+
+
 
 
 
@@ -101,14 +110,6 @@ var radius = 10 //radius of circles
     refX = radius + (markerWidth * 2),
     refY = 0;
 
-var force = d3.layout.force()
-    .nodes(d3.values(nodes))
-    .links(links)
-    .size([width, height])
-    .linkDistance(100)
-    .charge(-300)
-    .on("tick", tick)
-    .start();
 
 d3.select('#b').on( 'click', function() {
   console.log("test");
@@ -155,54 +156,70 @@ svg.append("defs").selectAll("marker")
     .attr("fill", "#666")
     .attr("stroke", "#666");
 
-var path = svg.append("g").selectAll("path")
-    .data(force.links())
-  .enter().append("path")
-    .attr("id", function(d) { return d.source.id + "_" + d.target.id; })
-    .attr("class", function(d) { return "link " + d.type; })
-    .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
 
-var path_label = svg.append("g").selectAll(".path_label")
-    .data(force.links())
-  .enter().append("text")
-    .attr("class", "path_label")
-    .append("textPath")
-      .attr("startOffset", "50%")
-      .attr("text-anchor", "middle")
-      .attr("xlink:href", function(d) { return "#" + d.source.id + "_" + d.target.id; })
-      .text(function(d) { return label(d); });
+var force = d3.layout.force()
+    .nodes(d3.values(nodes))
+    .links(links)
+    .size([width, height])
+    .linkDistance(100)
+    .charge(-300)
+    .on("tick", tick)
+
+start();
 
 
-// define the nodes
-var node = svg.selectAll(".node")
-    .data(force.nodes())
-  .enter().append("g")
-    .attr("class", "node")
-//    .on("dblclick", click)
-    //.on("click", click)
 
-    .on("click", function(d) { click(d);})
-    .call(force.drag);
+function start(){
+  path = svg.append("g").selectAll("path")
+      .data(force.links())
+    .enter().append("path")
+      .attr("id", function(d) { return d.source.id + "_" + d.target.id; })
+      .attr("class", function(d) { return "link " + d.type; })
+      .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
 
-// add the nodes
-node.append("circle")
-    .style("fill", function(d) {
-      return repoColor[d.repo];
-    })
-    .attr("class", function(d) { return 'c' + d.id; })
-    .attr("stroke-width", "1.5px")
-    .attr("r", radius);
+  path_label = svg.append("g").selectAll("path_label")
+      .data(force.links())
+    .enter().append("text")
+      .attr("class", "path_label")
+      .append("textPath")
+        .attr("startOffset", "50%")
+        .attr("text-anchor", "middle")
+        .attr("xlink:href", function(d) { return "#" + d.source.id + "_" + d.target.id; })
+        .text(function(d) { return label(d); });
 
-// add the text 
-node.append("text")
-    .attr("x", 12)
-    .attr("dy", ".35em")
 
-    .text(function(d) { if(d.number == 0){
-      return d.title;
-    } else {
-      return d.number;
-    }});
+  // define the nodes
+  node = svg.selectAll("node")
+      .data(force.nodes())
+    .enter().append("g")
+      .attr("class", "node")
+  //    .on("dblclick", click)
+      //.on("click", click)
+
+      .on("click", function(d) { click(d);})
+      .call(force.drag);
+
+  // add the nodes
+  node.append("circle")
+      .style("fill", function(d) {
+        return repoColor[d.repo];
+      })
+      .attr("class", function(d) { return 'c' + d.id; })
+      .attr("stroke-width", "1.5px")
+      .attr("r", radius);
+
+  // add the text 
+  node.append("text")
+      .attr("x", 12)
+      .attr("dy", ".35em")
+
+      .text(function(d) { if(d.number == 0){
+        return d.title;
+      } else {
+        return d.number;
+      }});
+  force.start();
+}
 
 
 var longText = false; //If node is labeled with title (rather than number)
@@ -271,6 +288,7 @@ function hide(){
   console.log(Object.keys(force.nodes()).length);
   delete nodes[descriptNode.id];
   console.log(Object.keys(force.nodes()).length);
+  start();
 
 }
 // action to take on mouse double click
