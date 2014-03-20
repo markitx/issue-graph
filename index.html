@@ -197,11 +197,25 @@ function click(d) {
 update();
 
 function hide(){
-  console.log(Object.keys(force.nodes()).length);
-  delete nodes[descriptNode.id];
-  console.log(Object.keys(force.nodes()).length);
-  start();
+  var i = nodes.indexOf(nodeDict[descriptNode.id])
+  if (i != -1){
+    var removed = nodes.splice(i,1);
+    for(var i=0; i<links.length; i++){
+      if(links[i].source.id == removed[0].id || links[i].target.id == removed[0].id){
+        links.splice(i,1);
+        i--;
+      }
+    }
+  }
 
+  descriptNode = {
+    id: '',
+    number: '',
+    title: '',
+    body: '',
+    repo: ''
+  };
+  update();
 }
 
 </script>
