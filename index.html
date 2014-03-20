@@ -19,7 +19,7 @@
   stroke-dasharray: 0,2 1;
 }
 
-div#d {
+div#graph {
   height: 500px;
   width: 100%;
   border:2px solid #000;
@@ -41,12 +41,29 @@ text {
 <body>
 <script type="text/javascript" src="graph-data.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
-<div id='d'></div>
-<div id='s'></div>
-<input type='button' id='b' value='Hide' class="btn"></input>
+<div id='graph'></div>
+<div id='info'></div>
+<input type='button' id='hide' value='Hide' class="btn"></input>
 <script>
+
+var description = d3.select("#info")
+    .append("text")
+    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>")
+    .attr('class', 'description');
+
+d3.select('#hide').on( 'click', function() {
+  console.log("test");
+  hide();
+});
+
 var width = window.innerWidth *.9,
-    height = window.innerHeight *1;
+    height = window.innerHeight *1,
+    radius = 10 //radius of circles
+    markerWidth = 6,
+    markerHeight = 6,
+    refX = radius + (markerWidth * 2),
+    refY = 0;
+
 var descriptNode = {
   id: '',
   number: '',
@@ -55,92 +72,10 @@ var descriptNode = {
   repo: ''
 };
 
-var links = [];
-
-var nodes = {};
-
-var repoColor = {};
-
-
-graphData.links.forEach(function (link) {
-  link.source = nodes[link.source.id] || (nodes[link.source.id] = link.source);
-  link.target = nodes[link.target.id] || (nodes[link.target.id] = link.target);
-  links.push({source: link.source, target: link.target, type: link.type});
-  repoColor[link.source.repo] = link.source.repo;
-  repoColor[link.target.repo] = link.target.repo;
-});
-
-
-
-d3.values(repoColor).forEach( function(repo, i) {
-  var hue = i * 360 /d3.values(repoColor).length;
-  repoColor[repo] = d3.hsl(hue, .5, .5);
-});
-
-
-
-// d3.values(nodes).forEach( function(node) {
-//   links.push({source: node, target: repoColor[node.repo], type: "n/a"});
-// });
-// var nodes = [];
-
-// var nodebyID = {};
-// graphData.nodes.forEach(function (node) {
-//   nodebyID[node.id] = node;
-//   nodes.push(node);
-// });
-// graphData.links.forEach(function (link) {
-//   links.push({source: nodebyID[link.source.id], target: nodebyID[link.target.id], type: link.type});
-// });
-
-var path;
-var path_label;
-var node;
-
-
-
-
-
-
-
-//circle and arrow variables
-var radius = 10 //radius of circles
-    markerWidth = 6,
-    markerHeight = 6,
-    refX = radius + (markerWidth * 2),
-    refY = 0;
-
-
-d3.select('#b').on( 'click', function() {
-  console.log("test");
-  hide();
-});
-
-var description = d3.select("#s")
-    .append("text")
-    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>")
-    .attr('class', 'description');
-
-
-
-var svg = d3.select("#d").append("svg")
+var svg = d3.select("#graph").append("svg")
     .attr("width", width)
-    .attr("height", height)
-  .append("g")
-  .append("g");
+    .attr("height", height);
 
-var zoom = d3.behavior.zoom()
-    .scaleExtent([0, 3])
-    .on("zoom", zoomed);
-
-var rect = svg.append("rect")
-    .attr("class", "overlay")
-    .attr("width", "100%")
-    //.call(zoom)
-    .attr("height", "100%");
-    
-
-// Per-type markers, as they don't inherit styles.
 svg.append("defs").selectAll("marker")
     .data(graphData.keywords)
   .enter().append("marker")
@@ -156,133 +91,110 @@ svg.append("defs").selectAll("marker")
     .attr("fill", "#666")
     .attr("stroke", "#666");
 
-
 var force = d3.layout.force()
-    .nodes(d3.values(nodes))
-    .links(links)
     .size([width, height])
-    .linkDistance(100)
-    .charge(-300)
-    .on("tick", tick)
+    .linkDistance(70)
+    .charge(-150)
+    .on("tick", tick);
 
-start();
+var nodes = force.nodes(),
+    links = force.links(),
+    node = svg.selectAll(".node"),
+    link = svg.selectAll(".link");
 
+function tick() {
+  link.attr("x1", function(d) { return d.source.x; })
+      .attr("y1", function(d) { return d.source.y; })
+      .attr("x2", function(d) { return d.target.x; })
+      .attr("y2", function(d) { return d.target.y; });
 
+  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-function start(){
-  path = svg.append("g").selectAll("path")
-      .data(force.links())
-    .enter().append("path")
-      .attr("id", function(d) { return d.source.id + "_" + d.target.id; })
-      .attr("class", function(d) { return "link " + d.type; })
-      .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
-
-  path_label = svg.append("g").selectAll("path_label")
-      .data(force.links())
-    .enter().append("text")
-      .attr("class", "path_label")
-      .append("textPath")
-        .attr("startOffset", "50%")
-        .attr("text-anchor", "middle")
-        .attr("xlink:href", function(d) { return "#" + d.source.id + "_" + d.target.id; })
-        .text(function(d) { return label(d); });
-
-
-  // define the nodes
-  node = svg.selectAll("node")
-      .data(force.nodes())
-    .enter().append("g")
-      .attr("class", "node")
-  //    .on("dblclick", click)
-      //.on("click", click)
-
-      .on("click", function(d) { click(d);})
-      .call(force.drag);
-
-  // add the nodes
-  node.append("circle")
+  node.select("circle")
       .style("fill", function(d) {
         return repoColor[d.repo];
       })
-      .attr("class", function(d) { return 'c' + d.id; })
-      .attr("stroke-width", "1.5px")
-      .attr("r", radius);
+      .attr("stroke-width", function(d){
+                              if(d.id == descriptNode.id){
+                                return "5px";
+                              } else {
+                                return "1.5px";
+                              }
+      });
+}
 
-  // add the text 
-  node.append("text")
+var linkAll = [];
+
+var nodeDict = {};
+
+var repoColor = {};
+
+graphData.nodes.forEach(function (node) {
+  nodeDict[node.id] = node;
+  repoColor[node.repo] = node.repo;
+})
+
+graphData.links.forEach(function (link) {
+  link.source = nodeDict[link.source.id];
+  link.target = nodeDict[link.target.id];
+  if(nodes.indexOf(link.source)==-1){ nodes.push(link.source); };
+  if(nodes.indexOf(link.target)==-1){ nodes.push(link.target); };
+  links.push({source: link.source, target: link.target, type: link.type});
+});
+
+d3.values(repoColor).forEach( function(repo, i) {
+  var hue = i * 360 /d3.values(repoColor).length;
+  repoColor[repo] = d3.hsl(hue, .5, .5);
+});
+
+function update() {
+  link = link.data(links);
+
+  link.enter().insert("line", ".node")
+      .attr("class", "link")
+      .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
+
+
+
+
+  link.exit().remove();
+
+  node = node.data(nodes);
+
+  var newnode = node.enter().append("g")
+      .on("click", function(d) { click(d);})
+      .attr("class", "node")
+      .call(force.drag);
+
+  newnode.append("circle")
+      .attr("r", radius)
+      .style("stroke", "#333");
+
+  newnode.append("text")
       .attr("x", 12)
       .attr("dy", ".35em")
-
       .text(function(d) { if(d.number == 0){
         return d.title;
       } else {
         return d.number;
       }});
+
+  node.exit().remove();
   force.start();
 }
 
 
-var longText = false; //If node is labeled with title (rather than number)
-
-function label(d){
-  if (d.type == "n/a"){
-    return "";
-  } else {
-    return d.type;
-  }
+function click(d) {
+  console.log("click");
+  descriptNode = d; 
+  d3.select("text.description")
+      .html("<b>Title: </b>"+descriptNode.title+
+                                    "<br/><b>Number: </b>"+descriptNode.number+
+                                    "<br/><b>Body: </b>"+descriptNode.body+
+                                    "<br/><b>ID: </b>"+descriptNode.id+
+                                    "<br/><b>Repo: </b>"+descriptNode.repo);
 }
-
-function tick(e) {
-    path.attr("d", function(d) {
-        var dx = d.target.x - d.source.x,
-            dy = d.target.y - d.source.y;
-        return "M" + 
-            d.source.x + "," + 
-            d.source.y + "L" + 
-            d.target.x + "," + 
-            d.target.y;
-    });
-
-
-
-
-    // console.log(repoColor["file-import"].x);
-
-    // var k = .1 * e.alpha;
-
-    // // Push nodes toward their designated focus.
-    // force.nodes().forEach(function(o, i) {
-    //   if(o.number != 0){
-    //     o.y += (repoColor[o.repo].y - o.y) * k;
-    //     o.x += (repoColor[o.repo].x - o.x) * k;
-    //   }
-    // });
-
-
-
-    var xs = [];
-    var ys = [];
-
-    force.nodes().forEach( function(d) {
-      xs.push(d.x);
-      ys.push(d.y);
-    });
-
-
-    rect
-      .attr("x", d3.min(xs))
-      .attr("y", d3.min(ys))
-      .attr("width", d3.max(xs) - d3.min(xs))
-      .attr("height", d3.max(ys) - d3.min(ys));
-
-
-    node
-        .attr("transform", function(d) { 
-        return "translate(" + d.x + "," + d.y + ")"; });
-
-
-}
-
+update();
 
 function hide(){
   console.log(Object.keys(force.nodes()).length);
@@ -291,36 +203,5 @@ function hide(){
   start();
 
 }
-// action to take on mouse double click
-function click(d) {
-  console.long("click");
-  d3.select("circle.c" + descriptNode.id).transition()
-      .duration(750)
-      .attr("stroke-width", "1.5px");
-  descriptNode = d; 
-  d3.select("circle.c" + descriptNode.id).transition()
-      .duration(750)
-      .attr("stroke-width", "5px");
-  d3.select("text.description")
-      .html("<b>Title: </b>"+descriptNode.title+
-                                    "<br/><b>Number: </b>"+descriptNode.number+
-                                    "<br/><b>Body: </b>"+descriptNode.body+
-                                    "<br/><b>ID: </b>"+descriptNode.id+
-                                    "<br/><b>Repo: </b>"+descriptNode.repo);
-  // if (longText){ //If displaying long text, display short text
-  //   d3.select(this).select("text").transition()
-  //     .duration(750)
-  //     .text(function(d) { return d.number; });
-  //   longText = !longText
-  // } else { //If displaying short text, display long text
-  //   d3.select(this).select("text").transition()
-  //       .duration(750)
-  //       .text(function(d) { return d.number + ": " + d.title; });
-  //   longText = !longText
 
-  // }
-}
-function zoomed() {
-  svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-}
 </script>
