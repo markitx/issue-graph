@@ -45,6 +45,8 @@ text {
 <div id='info'></div>
 <input type='button' id='hide' value='Hide' class="btn"></input>
 <input type='button' id='hide_group' value='Hide Group' class="btn"></input>
+<input type='checkbox' id='hide_group' value='Hide Group' class="btn"></input>
+
 
 <script>
 
@@ -205,32 +207,31 @@ function update() {
 
 function click(d) {
   console.log("click"+d.number);
-  d3.select("circle.c" + descriptNode.id).attr("stroke-width", "1.5px");
   descriptNode = d;
-  d3.select("circle.c" + descriptNode.id).attr("stroke-width", "5px");
   d3.select("text.description")
       .html("<b>Title: </b>"+descriptNode.title+
                                     "<br/><b>Number: </b>"+descriptNode.number+
                                     "<br/><b>Body: </b>"+descriptNode.body+
                                     "<br/><b>ID: </b>"+descriptNode.id+
                                     "<br/><b>Repo: </b>"+descriptNode.repo);
+  tick();
 }
 update();
 
 function hide(n){
   var i = nodes.indexOf(nodeDict[n.id])
-  var other_nodes = [];
+  var connect_nodes = [];
   if (i != -1){
     var removed = nodes.splice(i,1);
     for(var i=0; i<links.length; i++){
       if(links[i].source.id == removed[0].id){
-        other_nodes.push(links[i].target);
+        connect_nodes.push(links[i].target);
 
         links.splice(i,1);
         i--;
       } else if (links[i].target.id == removed[0].id){
-        other_nodes.push(links[i].source);
-        
+        connect_nodes.push(links[i].source);
+
         links.splice(i,1);
         i--;
       }
@@ -245,8 +246,8 @@ function hide(n){
     body: '',
     repo: ''
   };
-  console.log(other_nodes);
-  return other_nodes;
+  console.log(connect_nodes);
+  return connect_nodes;
 }
 
 </script>
