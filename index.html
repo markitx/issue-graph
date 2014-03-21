@@ -21,10 +21,45 @@
 
 div#graph {
   height: 500px;
-  width: 100%;
+  width: 80%;
   border:2px solid #000;
   overflow: auto;
- }
+  float: left;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#filter {
+  width: 20%;
+  float:left;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#filter div{
+  padding: 5px;
+  height: 500px;
+  margin-left: 10px;
+  border:2px solid #000;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#info {
+  width:100%;
+  padding:5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border:2px solid #000;
+  float:left;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
 
 circle {
   fill: #ccc;
@@ -42,27 +77,35 @@ text {
 <script type="text/javascript" src="graph-data.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <div id='graph'></div>
-<div id='info'></div>
-<input type='button' id='hide' value='Hide' class="btn"></input>
-<input type='button' id='hide_group' value='Hide Group' class="btn"></input>
-<input type='checkbox' id='hide_group' value='Hide Group' class="btn"></input>
+<div id='filter'>
+  <div>
+    Filter<br/>
+    <label><input type='checkbox' id='hide_group' value='Hide Group' class="btn"></input>Thing</label>
+  </div>
+</div>
+<div id='info'>
+  <text class='description'></text>
+  <div>
+    <input type='button' id='hide' value='Hide' class="btn"></input>
+    <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
+  </div>
+</div>
+
 
 
 <script>
 
-var description = d3.select("#info")
-    .append("text")
-    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>")
-    .attr('class', 'description');
+var description = d3.select(".description")
+    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
 
-d3.select('#hide').on( 'click', function() {
+d3.select('#hide').on('click', function() {
   console.log("test");
   hide(descriptNode);
   update();
 
 });
 
-d3.select('#hide_group').on( 'click', function() {
+d3.select('#hidegroup').on('click', function() {
   console.log("test");
   var hide_group = function(node) {
     hide(node).forEach(function(new_node) {
