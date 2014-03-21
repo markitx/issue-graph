@@ -42,6 +42,7 @@ div#filter div{
   padding: 5px;
   height: 500px;
   margin-left: 10px;
+  overflow: auto;
   border:2px solid #000;
   -webkit-box-sizing: border-box;
    -moz-box-sizing: border-box;
@@ -80,7 +81,9 @@ text {
 <div id='filter'>
   <div>
     Filter<br/>
-    <label><input type='checkbox' id='hide_group' value='Hide Group' class="btn"></input>Thing</label>
+    <form>
+      <label><input type='checkbox' class="checkbox" checked=""></input><text>All linked</text></label>
+    </form>
   </div>
 </div>
 <div id='info'>
@@ -97,6 +100,17 @@ text {
 
 var description = d3.select(".description")
     .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
+var form = d3.select('form')
+graphData.repos.forEach(function(repo) {
+  form.append('text').html('<br/>')
+  var label = form.append('label');
+  label.append('input')
+    .attr('type','checkbox')
+    .attr('class','checkbox');
+  label.append('text').text(repo);
+});
+
+
 
 d3.select('#hide').on('click', function() {
   console.log("test");
