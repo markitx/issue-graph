@@ -99,11 +99,23 @@ text {
 
 <script>
 
+//TEXT DESCRIPTION
+//==========================================
+//==========================================
 var description = d3.select(".description")
     .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
 
-
-
+var descriptNode = {
+  id: '',
+  number: '',
+  title: '',
+  body: '',
+  repo: ''
+};
+//CHECKBOXS
+//==========================================
+//==========================================
+//Adds checkbox for each repo
 var form = d3.select('form')
 graphData.repos.forEach(function(repo) {
   form.append('text').html('<br/>')
@@ -116,6 +128,10 @@ graphData.repos.forEach(function(repo) {
 });
 
 ///CHECK IF BOX IS CHECKED////console.log(d3.select('#linked').attr('checked'));
+
+//BUTTONS
+//==========================================
+//==========================================
 
 d3.select('#hide').on('click', function() {
   console.log("test");
@@ -133,8 +149,12 @@ d3.select('#hidegroup').on('click', function() {
   }
   hide_group(descriptNode);
   update();
-  
 });
+
+
+//GRAPH
+//==========================================
+//==========================================
 
 var width = window.innerWidth *.9,
     height = window.innerHeight *1,
@@ -144,13 +164,7 @@ var width = window.innerWidth *.9,
     refX = radius + (markerWidth * 2),
     refY = 0;
 
-var descriptNode = {
-  id: '',
-  number: '',
-  title: '',
-  body: '',
-  repo: ''
-};
+
 
 var svg = d3.select("#graph").append("svg")
     .attr("width", width)
@@ -171,6 +185,8 @@ svg.append("defs").selectAll("marker")
     .attr("fill", "#666")
     .attr("stroke", "#666");
 
+//Force
+////////
 var force = d3.layout.force()
     .size([width, height])
     .linkDistance(70)
@@ -208,8 +224,13 @@ function tick() {
         return d.number;
       }});
 }
+////////
 
-var linkAll = [];
+
+//DATA GATHERING
+//==========================================
+//==========================================
+var linkAll = []; 
 
 var nodeDict = {};
 
@@ -233,15 +254,19 @@ d3.values(repoColor).forEach( function(repo, i) {
   repoColor[repo] = d3.hsl(hue, .5, .5);
 });
 
+
+
+//FUNCTIONS
+//==========================================
+//==========================================
+
+//Update force graph with new nodes and links
 function update() {
   link = link.data(links);
 
   link.enter().insert("line", ".node")
       .attr("class", "link")
       .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
-
-
-
 
   link.exit().remove();
 
@@ -266,7 +291,8 @@ function update() {
   force.start();
 }
 
-
+//Update Text description on click
+//Argument: node clicked
 function click(d) {
   console.log("click"+d.number);
   descriptNode = d;
@@ -280,6 +306,7 @@ function click(d) {
 }
 update();
 
+//Remove passed in node and adjacent links from graph
 function hide(n){
   var i = nodes.indexOf(nodeDict[n.id])
   var connect_nodes = [];
