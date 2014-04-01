@@ -82,8 +82,8 @@ text {
   <div>
     Filter<br/>
     <form>
-      <label><input type='checkbox' class="checkbox" id='All'></input><text>All</text></label><br/>
-      <label><input type='checkbox' class="checkbox" id='linked' checked="checked"></input><text>All linked</text></label>
+      <label><input type='checkbox' class="checkbox" name='All'></input><text>All</text></label><br/>
+      <label><input type='checkbox' onclick="checkbox()" class="checkbox" name='linked' checked="checked"></input><text>All linked</text></label>
     </form>
   </div>
 </div>
@@ -121,11 +121,32 @@ graphData.repos.forEach(function(repo) {
   form.append('text').html('<br/>')
   var label = form.append('label');
   label.append('input')
+    .attr('onclick', 'checkbox()')
     .attr('type','checkbox')
     .attr('class','checkbox')
     .attr('name',repo);
   label.append('text').text(repo);
 });
+
+function checkbox(){
+  //Remove all nodes
+  while(nodes.length>0){
+    hide(nodes[0]);
+  }
+  d3.selectAll('.checkbox')[0].forEach(function(checkbox){
+    if(checkbox.checked){
+      d3.values(nodeDict).forEach(function(node){
+        if(node.repo == checkbox.name){
+          console.log('hi');
+          add(node);
+        }
+      });
+    }
+  });
+  update();
+  
+
+}
 
 ///CHECK IF BOX IS CHECKED////console.log(d3.select('#linked').attr('checked'));
 
@@ -134,7 +155,6 @@ graphData.repos.forEach(function(repo) {
 //==========================================
 
 d3.select('#hide').on('click', function() {
-  console.log("test");
   hide(descriptNode);
   update();
 
@@ -234,6 +254,8 @@ var linkAll = [];
 
 var nodeDict = {};
 
+var linkedNodes = [];
+
 var repoColor = {};
 
 graphData.nodes.forEach(function (node) {
@@ -244,9 +266,9 @@ graphData.nodes.forEach(function (node) {
 graphData.links.forEach(function (link) {
   link.source = nodeDict[link.source.id];
   link.target = nodeDict[link.target.id];
-  if(nodes.indexOf(link.source)==-1){ nodes.push(link.source); };
-  if(nodes.indexOf(link.target)==-1){ nodes.push(link.target); };
-  links.push({source: link.source, target: link.target, type: link.type});
+  if(linkedNodes.indexOf(link.source)==-1){ linkedNodes.push(link.source); };
+  if(linkedNodes.indexOf(link.target)==-1){ linkedNodes.push(link.target); };
+  linkAll.push({source: link.source, target: link.target, type: link.type});
 });
 
 d3.values(repoColor).forEach( function(repo, i) {
@@ -254,6 +276,15 @@ d3.values(repoColor).forEach( function(repo, i) {
   repoColor[repo] = d3.hsl(hue, .5, .5);
 });
 
+
+//Initial
+linkedNodes.forEach( function(node){
+  nodes.push(node);
+});
+linkAll.forEach(function(link) {
+  links.push(link);
+});
+update();
 
 
 //FUNCTIONS
@@ -304,7 +335,6 @@ function click(d) {
                                     "<br/><b>Repo: </b>"+descriptNode.repo);
   tick();
 }
-update();
 
 //Remove passed in node and adjacent links from graph
 function hide(n){
@@ -335,8 +365,21 @@ function hide(n){
     body: '',
     repo: ''
   };
-  console.log(connect_nodes);
   return connect_nodes;
+}
+
+function add(n){
+  if(nodes.indexOf(n)==-1){
+    nodes.push(n);
+    linkAll.forEach(function(link) {
+      if(link.source == n && nodes.indexOf(link.target)!=-1){
+        links.push(link);
+      } else if(link.target == n && nodes.indexOf(link.source)!=-1){
+        links.push(link);
+      }
+    })
+  };
+
 }
 
 </script>
