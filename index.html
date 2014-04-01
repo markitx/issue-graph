@@ -167,6 +167,13 @@ function checkbox(){
   }
   d3.selectAll('.checkbox')[0].forEach(function(checkbox){
     if(checkbox.checked){
+      if(checkbox.name == 'linked'){
+        linkedNodes.forEach( function(node){
+          add(node);
+        });
+      }
+
+
       d3.values(nodeDict).forEach(function(node){
         if(node.repo == checkbox.name){
           console.log('hi');
@@ -311,10 +318,7 @@ d3.values(repoColor).forEach( function(repo, i) {
 
 //Initial
 linkedNodes.forEach( function(node){
-  nodes.push(node);
-});
-linkAll.forEach(function(link) {
-  links.push(link);
+  add(node);
 });
 update();
 
