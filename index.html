@@ -82,7 +82,7 @@ text {
   <div>
     Filter<br/>
     <form>
-      <label><input type='checkbox' class="checkbox" name='All'></input><text>All</text></label><br/>
+      <label><input type='checkbox' onclick="allbox()" class="checkbox" name='All' id='all'checked=null></input><text>All</text></label><br/>
       <label><input type='checkbox' onclick="checkbox()" class="checkbox" name='linked' checked="checked"></input><text>All linked</text></label>
     </form>
   </div>
@@ -128,6 +128,16 @@ graphData.repos.forEach(function(repo) {
   label.append('text').text(repo);
 });
 
+function allbox(){
+  if(d3.select('#all')[0][0].checked){
+    d3.selectAll('.checkbox').property('checked', true);
+  } else {
+    d3.selectAll('.checkbox').property('checked', false);
+  }
+
+  checkbox();
+}
+
 function checkbox(){
   //Remove all nodes
   while(nodes.length>0){
@@ -144,7 +154,7 @@ function checkbox(){
     }
   });
   update();
-  
+
 
 }
 
