@@ -82,8 +82,7 @@ text {
   <div>
     Filter<br/>
     <form>
-      <label><input type='checkbox' onclick="allbox()" class="checkbox" name='All' id='all'checked=null></input><text>All</text></label><br/>
-      <label><input type='checkbox' onclick="checkbox()" class="checkbox" name='linked' checked="checked"></input><text>All linked</text></label>
+
     </form>
   </div>
 </div>
@@ -116,7 +115,30 @@ var descriptNode = {
 //==========================================
 //==========================================
 //Adds checkbox for each repo
+
+//'All' checkbox
 var form = d3.select('form')
+var label = form.append('label');
+label.append('input')
+      .attr('onclick', 'allbox()')
+      .attr('type','checkbox')
+      .attr('class','checkbox')
+      .attr('id','all')
+      .attr('name','All');
+label.append('text').text('All');
+
+//'All linked' checkbox
+form.append('text').html('<br/>')
+var label = form.append('label');
+label.append('input')
+      .attr('onclick', 'checkbox()')
+      .attr('type','checkbox')
+      .attr('class','checkbox')
+      .attr('checked','checked')
+      .attr('name','linked');
+label.append('text').text('All linked');
+
+//Repo checkboxes
 graphData.repos.forEach(function(repo) {
   form.append('text').html('<br/>')
   var label = form.append('label');
