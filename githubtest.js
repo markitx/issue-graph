@@ -121,7 +121,7 @@ function writeData(){
 	});
 	var graphData = {
 		keywords: keywords,
-		repos: repos,
+		repos: repos.sort(),
 		nodes: nodes,
 		links: links
 	};
