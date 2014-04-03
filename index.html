@@ -23,7 +23,7 @@ div#graph {
   height: 500px;
   width: 80%;
   border:2px solid #000;
-  overflow: auto;
+  overflow: hidden;
   float: left;
   -webkit-box-sizing: border-box;
    -moz-box-sizing: border-box;
@@ -187,7 +187,6 @@ function checkbox(){
 
 }
 
-///CHECK IF BOX IS CHECKED////console.log(d3.select('#linked').attr('checked'));
 
 //BUTTONS
 //==========================================
@@ -215,8 +214,8 @@ d3.select('#hidegroup').on('click', function() {
 //==========================================
 //==========================================
 
-var width = window.innerWidth *.9,
-    height = window.innerHeight *1,
+var width = document.getElementsByTagName('body')[0].clientWidth *.8,
+    height = 500,
     radius = 10 //radius of circles
     markerWidth = 6,
     markerHeight = 6,
@@ -227,7 +226,9 @@ var width = window.innerWidth *.9,
 
 var svg = d3.select("#graph").append("svg")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+    .attr('transform','scale(1)')
+    .attr("viewbox", "0 0 "+width+" "+height);
 
 svg.append("defs").selectAll("marker")
     .data(graphData.keywords)
@@ -282,6 +283,29 @@ function tick() {
       } else {
         return d.number;
       }});
+
+  var xs = [];
+  var ys = [];
+
+  force.nodes().forEach( function(d) {
+    xs.push(d.x);
+    ys.push(d.y);
+  });
+
+  dy = -1 * d3.min([0,d3.min(ys)-50]);
+  dx = -1 * d3.min([0,d3.min(xs)-50]);
+  scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
+
+  svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
+
+  // if(d3.max(xs) + 100 > width){
+  //   svg.attr('transform','scale('+width/(d3.max(xs)+100)+')');
+  // } else {
+  //   svg.attr('transform','scale(1)');
+
+  // }
+
+
 }
 ////////
 
