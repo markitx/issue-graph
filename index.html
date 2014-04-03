@@ -84,6 +84,11 @@ text {
     <form>
 
     </form>
+    <select id='dropdown'>
+    </select>
+    <input type='text' id='issueNum' placeholder='Issue #' value=''></input>
+    <input type='button' id='find' value='Find/Add' class="btn"></input>
+
   </div>
 </div>
 <div id='info'>
@@ -176,7 +181,6 @@ function checkbox(){
 
       d3.values(nodeDict).forEach(function(node){
         if(node.repo == checkbox.name){
-          console.log('hi');
           add(node);
         }
       });
@@ -187,6 +191,15 @@ function checkbox(){
 
 }
 
+//DROPDOWN
+//==========================================
+//==========================================
+
+var form = d3.select('select')
+
+graphData.repos.forEach(function(repo) {
+  form.append('option').append('text').text(repo);
+});
 
 //BUTTONS
 //==========================================
@@ -199,7 +212,6 @@ d3.select('#hide').on('click', function() {
 });
 
 d3.select('#hidegroup').on('click', function() {
-  console.log("test");
   var hide_group = function(node) {
     hide(node).forEach(function(new_node) {
       hide_group(new_node);
@@ -207,6 +219,14 @@ d3.select('#hidegroup').on('click', function() {
   }
   hide_group(descriptNode);
   update();
+});
+
+d3.select('#find').on('click', function() {
+  n = nodeDict[d3.select('#dropdown')[0][0].value + d3.select('#issueNum')[0][0].value]
+  add(n);
+  click(n);
+  update();
+
 });
 
 
@@ -298,12 +318,7 @@ function tick() {
 
   svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
 
-  // if(d3.max(xs) + 100 > width){
-  //   svg.attr('transform','scale('+width/(d3.max(xs)+100)+')');
-  // } else {
-  //   svg.attr('transform','scale(1)');
-
-  // }
+  //console.log("dx:"+dx+" dy: "+dy+" scale:"+scale);
 
 
 }
@@ -322,13 +337,13 @@ var linkedNodes = [];
 var repoColor = {};
 
 graphData.nodes.forEach(function (node) {
-  nodeDict[node.id] = node;
+  nodeDict[node.repo+""+node.number] = node;
   repoColor[node.repo] = node.repo;
 })
 
 graphData.links.forEach(function (link) {
-  link.source = nodeDict[link.source.id];
-  link.target = nodeDict[link.target.id];
+  link.source = nodeDict[link.source.repo+""+link.source.number];
+  link.target = nodeDict[link.target.repo+""+link.target.number];
   if(linkedNodes.indexOf(link.source)==-1){ linkedNodes.push(link.source); };
   if(linkedNodes.indexOf(link.target)==-1){ linkedNodes.push(link.target); };
   linkAll.push({source: link.source, target: link.target, type: link.type});
@@ -385,7 +400,6 @@ function update() {
 //Update Text description on click
 //Argument: node clicked
 function click(d) {
-  console.log("click"+d.number);
   descriptNode = d;
   d3.select("text.description")
       .html("<b>Title: </b>"+descriptNode.title+
@@ -398,7 +412,7 @@ function click(d) {
 
 //Remove passed in node and adjacent links from graph
 function hide(n){
-  var i = nodes.indexOf(nodeDict[n.id])
+  var i = nodes.indexOf(nodeDict[n.repo+""+n.number])
   var connect_nodes = [];
   if (i != -1){
     var removed = nodes.splice(i,1);
