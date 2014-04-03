@@ -30,7 +30,7 @@ div#graph {
         box-sizing: border-box;
 }
 
-div#filter {
+div#side {
   width: 20%;
   float:left;
   -webkit-box-sizing: border-box;
@@ -38,11 +38,21 @@ div#filter {
         box-sizing: border-box;
 }
 
-div#filter div{
+div#side div#filter{
   padding: 5px;
-  height: 500px;
+  height: 435px;
   margin-left: 10px;
   overflow: auto;
+  border:2px solid #000;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#side div#find{
+  height: 55px;
+  margin-top: 10px;
+  margin-left: 10px;
   border:2px solid #000;
   -webkit-box-sizing: border-box;
    -moz-box-sizing: border-box;
@@ -61,6 +71,19 @@ div#info {
         box-sizing: border-box;
 }
 
+#dropdown {
+  width:50%;
+
+}
+
+#issueNum {
+  width:45%;
+
+}
+
+#findbtn {
+  width:100%;
+}
 
 circle {
   fill: #ccc;
@@ -78,17 +101,16 @@ text {
 <script type="text/javascript" src="graph-data.json"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <div id='graph'></div>
-<div id='filter'>
-  <div>
+<div id='side'>
+  <div id='filter'>
     Filter<br/>
-    <form>
-
+    <form id='checkboxForm'>
     </form>
-    <select id='dropdown'>
-    </select>
-    <input type='text' id='issueNum' placeholder='Issue #' value=''></input>
-    <input type='button' id='find' value='Find/Add' class="btn"></input>
-
+  </div>
+  <div id='find'>
+    <select id='dropdown' class="find"></select>
+    <input type='text' id='issueNum' placeholder='Issue #' value='' class="find"></input>
+    <input type='button' id='findbtn' value='Find/Add' class="find"></input>
   </div>
 </div>
 <div id='info'>
@@ -122,7 +144,7 @@ var descriptNode = {
 //Adds checkbox for each repo
 
 //'All' checkbox
-var form = d3.select('form')
+var form = d3.select('#checkboxForm')
 var label = form.append('label');
 label.append('input')
       .attr('onclick', 'allbox()')
@@ -221,12 +243,12 @@ d3.select('#hidegroup').on('click', function() {
   update();
 });
 
-d3.select('#find').on('click', function() {
+d3.select('#findbtn').on('click', function() {
   n = nodeDict[d3.select('#dropdown')[0][0].value + d3.select('#issueNum')[0][0].value]
   add(n);
   click(n);
+  tick();
   update();
-
 });
 
 
@@ -236,7 +258,7 @@ d3.select('#find').on('click', function() {
 
 var width = document.getElementsByTagName('body')[0].clientWidth *.8,
     height = 500,
-    radius = 10 //radius of circles
+    radius = 10, //radius of circles
     markerWidth = 6,
     markerHeight = 6,
     refX = radius + (markerWidth * 2),
@@ -318,7 +340,7 @@ function tick() {
 
   svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
 
-  //console.log("dx:"+dx+" dy: "+dy+" scale:"+scale);
+  console.log("dx:"+dx+" dy: "+dy+" scale:"+scale);
 
 
 }
