@@ -512,9 +512,14 @@ function add(n){
 function find(n){
   //error message is issue doesn't exist
   n = nodeDict[n];
-  add(n);
-  click(n);
-  update();
+  if (n){
+    add(n);
+    click(n);
+    update();
+  } else {
+    alert("Warning: You are trying to display a non-open issue");
+  }
+
 }
 
 </script>
