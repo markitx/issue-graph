@@ -74,15 +74,19 @@ div#info {
 #dropdown {
   width:50%;
 
+
 }
 
 #issueNum {
+  margin: 0px;
   width:45%;
+
 
 }
 
 #findbtn {
   width:100%;
+
 }
 
 circle {
@@ -114,7 +118,9 @@ text {
   </div>
 </div>
 <div id='info'>
-  <text class='description'></text>
+  <div id='text'>
+    <text class='description'></text>
+  </div>
   <div>
     <input type='button' id='hide' value='Hide' class="btn"></input>
     <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
@@ -244,11 +250,8 @@ d3.select('#hidegroup').on('click', function() {
 });
 
 d3.select('#findbtn').on('click', function() {
-  n = nodeDict[d3.select('#dropdown')[0][0].value + d3.select('#issueNum')[0][0].value]
-  add(n);
-  click(n);
-  tick();
-  update();
+  n = d3.select('#dropdown')[0][0].value + d3.select('#issueNum')[0][0].value;
+  find(n);
 });
 
 
@@ -270,7 +273,7 @@ var svg = d3.select("#graph").append("svg")
     .attr("width", width)
     .attr("height", height)
     .attr('transform','scale(1)')
-    .attr("viewbox", "0 0 "+width+" "+height);
+    .attr("viewbox", "0 0 "+width+" "+height).append("g");
 
 svg.append("defs").selectAll("marker")
     .data(graphData.keywords)
@@ -334,16 +337,21 @@ function tick() {
     ys.push(d.y);
   });
 
-  dy = -1 * d3.min([0,d3.min(ys)-50]);
-  dx = -1 * d3.min([0,d3.min(xs)-50]);
+  dy = -1 * d3.min([1,d3.min(ys)-50]);
+  dx = -1 * d3.min([1,d3.min(xs)-50]);
   scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
 
   svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
 
-  console.log("dx:"+dx+" dy: "+dy+" scale:"+scale);
 
 
 }
+
+// force.on("end", function() {
+//     console.log("resuming");
+    
+//     force.resume(); // equivalent to force.alpha(.1);
+// });
 ////////
 
 
@@ -423,12 +431,35 @@ function update() {
 //Argument: node clicked
 function click(d) {
   descriptNode = d;
-  d3.select("text.description")
-      .html("<b>Title: </b>"+descriptNode.title+
+  var matches = descriptNode.body.match(/ [a-z-_/]*#\d+/gi);
+  console.log(matches);
+  if (matches) {
+    matches.forEach(function(match){
+      var id = match.match(/[a-z-_/]+#\d+/gi);
+      if (id && id.length >0) {
+        var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
+        var n = id[0].match(/\d+/)[0];
+        console.log(repo);
+      } else {
+        var id = match.match(/#\d+/);
+        var repo = descriptNode.repo;
+        var n = id[0].match(/\d+/)[0];
+        console.log(n);
+
+      }
+      descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' onclick='find(\""+repo+n+"\")'></input><text>");
+    });
+  }
+
+
+  d3.select("#text")
+      .html("<text><b>Title: </b>"+descriptNode.title+
                                     "<br/><b>Number: </b>"+descriptNode.number+
                                     "<br/><b>Body: </b>"+descriptNode.body+
                                     "<br/><b>ID: </b>"+descriptNode.id+
-                                    "<br/><b>Repo: </b>"+descriptNode.repo);
+                                    "<br/><b>Repo: </b>"+descriptNode.repo)+
+                                    "</text>";
+
   tick();
 }
 
@@ -476,6 +507,14 @@ function add(n){
     })
   };
 
+}
+
+function find(n){
+  //error message is issue doesn't exist
+  n = nodeDict[n];
+  add(n);
+  click(n);
+  update();
 }
 
 </script>
