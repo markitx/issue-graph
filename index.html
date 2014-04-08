@@ -99,6 +99,10 @@ text {
   pointer-events: none;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
+#bodybtn {
+  font: 10px sans-serif;
+  padding: 0px;
+}
 
 </style>
 <body>
@@ -447,7 +451,7 @@ function click(d) {
         console.log(n);
 
       }
-      descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' onclick='find(\""+repo+n+"\")'></input><text>");
+      descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' onclick='find(\""+repo+n+"\")' id='bodybtn'></input><text>");
     });
   }
 
