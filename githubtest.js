@@ -1,5 +1,6 @@
 var GitHubApi = require('github');
 var fs = require('fs');
+var marked = require('marked');
 
 var oauth = "";
 var keywords = [];
@@ -127,7 +128,7 @@ function writeData(){
 	};
 	console.log(JSON.stringify(graphData, null, 2));
 
-	fs.writeFile('graph-data.json', 'graphData = ' + JSON.stringify(graphData), function (err) {
+	fs.writeFile('graph-data.json', JSON.stringify(graphData), function (err) {
 		if (err) {
 			return console.log(err);
 		}

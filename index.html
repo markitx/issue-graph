@@ -105,8 +105,9 @@ text {
 }
 
 </style>
+<title>Github - Issue Graph</title>
 <body>
-<script type="text/javascript" src="graph-data.json"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <div id='graph'></div>
 <div id='side'>
@@ -153,377 +154,385 @@ var descriptNode = {
 //==========================================
 //Adds checkbox for each repo
 
-//'All' checkbox
-var form = d3.select('#checkboxForm')
-var label = form.append('label');
-label.append('input')
-      .attr('onclick', 'allbox()')
-      .attr('type','checkbox')
-      .attr('class','checkbox')
-      .attr('id','all')
-      .attr('name','All');
-label.append('text').text('All');
-
-//'All linked' checkbox
-form.append('text').html('<br/>')
-var label = form.append('label');
-label.append('input')
-      .attr('onclick', 'checkbox()')
-      .attr('type','checkbox')
-      .attr('class','checkbox')
-      .attr('checked','checked')
-      .attr('name','linked');
-label.append('text').text('All linked');
 
 //Repo checkboxes
-graphData.repos.forEach(function(repo) {
+$.getJSON("graph-data.json")
+  .done(function (data, textStatus, jqXHR) {
+    var graphData = data;
+    console.log(data);
+    render(graphData);
+  })
+  .fail();
+var render = function (graphData) {
+  //'All' checkbox
+  var form = d3.select('#checkboxForm')
+  var label = form.append('label');
+  label.append('input')
+        .attr('onclick', 'allbox()')
+        .attr('type','checkbox')
+        .attr('class','checkbox')
+        .attr('id','all')
+        .attr('name','All');
+  label.append('text').text('All');
+
+  //'All linked' checkbox
   form.append('text').html('<br/>')
   var label = form.append('label');
   label.append('input')
-    .attr('onclick', 'checkbox()')
-    .attr('type','checkbox')
-    .attr('class','checkbox')
-    .attr('name',repo);
-  label.append('text').text(repo);
-});
+        .attr('onclick', 'checkbox()')
+        .attr('type','checkbox')
+        .attr('class','checkbox')
+        .attr('checked','checked')
+        .attr('name','linked');
+  label.append('text').text('All linked');
 
-function allbox(){
-  if(d3.select('#all')[0][0].checked){
-    d3.selectAll('.checkbox').property('checked', true);
-  } else {
-    d3.selectAll('.checkbox').property('checked', false);
+  graphData.repos.forEach(function(repo) {
+
+    form.append('text').html('<br/>')
+    var label = form.append('label');
+    label.append('input')
+      .attr('onclick', 'checkbox()')
+      .attr('type','checkbox')
+      .attr('class','checkbox')
+      .attr('name',repo);
+    label.append('text').text(repo);
+  });
+
+  function allbox(){
+    if(d3.select('#all')[0][0].checked){
+      d3.selectAll('.checkbox').property('checked', true);
+    } else {
+      d3.selectAll('.checkbox').property('checked', false);
+    }
+
+    checkbox();
   }
 
-  checkbox();
-}
+  function checkbox(){
+    //Remove all nodes
+    while(nodes.length>0){
+      hide(nodes[0]);
+    }
+    d3.selectAll('.checkbox')[0].forEach(function(checkbox){
+      if(checkbox.checked){
+        if(checkbox.name == 'linked'){
+          linkedNodes.forEach( function(node){
+            add(node);
+          });
+        }
 
-function checkbox(){
-  //Remove all nodes
-  while(nodes.length>0){
-    hide(nodes[0]);
-  }
-  d3.selectAll('.checkbox')[0].forEach(function(checkbox){
-    if(checkbox.checked){
-      if(checkbox.name == 'linked'){
-        linkedNodes.forEach( function(node){
-          add(node);
+
+        d3.values(nodeDict).forEach(function(node){
+          if(node.repo == checkbox.name){
+            add(node);
+          }
         });
       }
-
-
-      d3.values(nodeDict).forEach(function(node){
-        if(node.repo == checkbox.name){
-          add(node);
-        }
-      });
-    }
-  });
-  update();
-
-
-}
-
-//DROPDOWN
-//==========================================
-//==========================================
-
-var form = d3.select('select')
-
-graphData.repos.forEach(function(repo) {
-  form.append('option').append('text').text(repo);
-});
-
-//BUTTONS
-//==========================================
-//==========================================
-
-d3.select('#hide').on('click', function() {
-  hide(descriptNode);
-  update();
-
-});
-
-d3.select('#hidegroup').on('click', function() {
-  var hide_group = function(node) {
-    hide(node).forEach(function(new_node) {
-      hide_group(new_node);
     });
-  }
-  hide_group(descriptNode);
-  update();
-});
-
-d3.select('#findbtn').on('click', function() {
-  n = d3.select('#dropdown')[0][0].value + d3.select('#issueNum')[0][0].value;
-  find(n);
-});
-
-
-//GRAPH
-//==========================================
-//==========================================
-
-var width = document.getElementsByTagName('body')[0].clientWidth *.8,
-    height = 500,
-    radius = 10, //radius of circles
-    markerWidth = 6,
-    markerHeight = 6,
-    refX = radius + (markerWidth * 2),
-    refY = 0;
-
-
-
-var svg = d3.select("#graph").append("svg")
-    .attr("width", width)
-    .attr("height", height)
-    .attr('transform','scale(1)')
-    .attr("viewbox", "0 0 "+width+" "+height).append("g");
-
-svg.append("defs").selectAll("marker")
-    .data(graphData.keywords)
-  .enter().append("marker")
-    .attr("id", function(d) { return d; })
-    .attr("viewBox", "0 -5 10 10")
-    .attr("refX", refX)
-    .attr("refY", refY)
-    .attr("markerWidth", markerWidth)
-    .attr("markerHeight", markerHeight)
-    .attr("orient", "auto")
-  .append("path")
-    .attr("d", "M0,-5L10,0L0,5")
-    .attr("fill", "#666")
-    .attr("stroke", "#666");
-
-//Force
-////////
-var force = d3.layout.force()
-    .size([width, height])
-    .linkDistance(70)
-    .charge(-150)
-    .on("tick", tick);
-
-var nodes = force.nodes(),
-    links = force.links(),
-    node = svg.selectAll(".node"),
-    link = svg.selectAll(".link");
-
-function tick() {
-  link.attr("x1", function(d) { return d.source.x; })
-      .attr("y1", function(d) { return d.source.y; })
-      .attr("x2", function(d) { return d.target.x; })
-      .attr("y2", function(d) { return d.target.y; });
-
-  node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-  node.select("circle")
-      .style("fill", function(d) {
-        return repoColor[d.repo];
-      })
-      .attr("stroke-width", function(d){
-                              if(d.id == descriptNode.id){
-                                return "5px";
-                              } else {
-                                return "1.5px";
-                              }
-      });
-  node.select("text")
-      .text(function(d) { if(d.number == 0){
-        return d.title;
-      } else {
-        return d.number;
-      }});
-
-  var xs = [];
-  var ys = [];
-
-  force.nodes().forEach( function(d) {
-    xs.push(d.x);
-    ys.push(d.y);
-  });
-
-  dy = -1 * d3.min([1,d3.min(ys)-50]);
-  dx = -1 * d3.min([1,d3.min(xs)-50]);
-  scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
-
-  svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
-
-
-
-}
-
-// force.on("end", function() {
-//     console.log("resuming");
-    
-//     force.resume(); // equivalent to force.alpha(.1);
-// });
-////////
-
-
-//DATA GATHERING
-//==========================================
-//==========================================
-var linkAll = []; 
-
-var nodeDict = {};
-
-var linkedNodes = [];
-
-var repoColor = {};
-
-graphData.nodes.forEach(function (node) {
-  nodeDict[node.repo+""+node.number] = node;
-  repoColor[node.repo] = node.repo;
-})
-
-graphData.links.forEach(function (link) {
-  link.source = nodeDict[link.source.repo+""+link.source.number];
-  link.target = nodeDict[link.target.repo+""+link.target.number];
-  if(linkedNodes.indexOf(link.source)==-1){ linkedNodes.push(link.source); };
-  if(linkedNodes.indexOf(link.target)==-1){ linkedNodes.push(link.target); };
-  linkAll.push({source: link.source, target: link.target, type: link.type});
-});
-
-d3.values(repoColor).forEach( function(repo, i) {
-  var hue = i * 360 /d3.values(repoColor).length;
-  repoColor[repo] = d3.hsl(hue, .5, .5);
-});
-
-
-//Initial
-linkedNodes.forEach( function(node){
-  add(node);
-});
-update();
-
-
-//FUNCTIONS
-//==========================================
-//==========================================
-
-//Update force graph with new nodes and links
-function update() {
-  link = link.data(links);
-
-  link.enter().insert("line", ".node")
-      .attr("class", "link")
-      .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
-
-  link.exit().remove();
-
-  node = node.data(nodes);
-
-  var newnode = node.enter().append("g")
-      .on("click", function(d) { click(d);})
-      .attr("class", "node")
-      .call(force.drag);
-
-  newnode.append("circle")
-      .attr("r", radius)
-      .attr("class", function(d) { return 'c' + d.id; })
-      .style("stroke", "#333");
-
-  newnode.append("text")
-      .attr("x", 12)
-      .attr("dy", ".35em")
-
-
-  node.exit().remove();
-  force.start();
-}
-
-//Update Text description on click
-//Argument: node clicked
-function click(d) {
-  descriptNode = d;
-  var matches = descriptNode.body.match(/ [a-z-_/]*#\d+/gi);
-  console.log(matches);
-  if (matches) {
-    matches.forEach(function(match){
-      var id = match.match(/[a-z-_/]+#\d+/gi);
-      if (id && id.length >0) {
-        var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
-        var n = id[0].match(/\d+/)[0];
-        console.log(repo);
-      } else {
-        var id = match.match(/#\d+/);
-        var repo = descriptNode.repo;
-        var n = id[0].match(/\d+/)[0];
-        console.log(n);
-
-      }
-      descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' onclick='find(\""+repo+n+"\")' id='bodybtn'></input><text>");
-    });
-  }
-
-
-  d3.select("#text")
-      .html("<text><b>Title: </b>"+descriptNode.title+
-                                    "<br/><b>Number: </b>"+descriptNode.number+
-                                    "<br/><b>Body: </b>"+descriptNode.body+
-                                    "<br/><b>ID: </b>"+descriptNode.id+
-                                    "<br/><b>Repo: </b>"+descriptNode.repo)+
-                                    "</text>";
-
-  tick();
-}
-
-//Remove passed in node and adjacent links from graph
-function hide(n){
-  var i = nodes.indexOf(nodeDict[n.repo+""+n.number])
-  var connect_nodes = [];
-  if (i != -1){
-    var removed = nodes.splice(i,1);
-    for(var i=0; i<links.length; i++){
-      if(links[i].source.id == removed[0].id){
-        connect_nodes.push(links[i].target);
-
-        links.splice(i,1);
-        i--;
-      } else if (links[i].target.id == removed[0].id){
-        connect_nodes.push(links[i].source);
-
-        links.splice(i,1);
-        i--;
-      }
-
-    }
-  }
-
-  descriptNode = {
-    id: '',
-    number: '',
-    title: '',
-    body: '',
-    repo: ''
-  };
-  return connect_nodes;
-}
-
-function add(n){
-  if(nodes.indexOf(n)==-1){
-    nodes.push(n);
-    linkAll.forEach(function(link) {
-      if(link.source == n && nodes.indexOf(link.target)!=-1){
-        links.push(link);
-      } else if(link.target == n && nodes.indexOf(link.source)!=-1){
-        links.push(link);
-      }
-    })
-  };
-
-}
-
-function find(n){
-  //error message is issue doesn't exist
-  n = nodeDict[n];
-  if (n){
-    add(n);
-    click(n);
     update();
-  } else {
-    alert("Warning: You are trying to display a non-open issue");
+
+
   }
 
-}
+  //DROPDOWN
+  //==========================================
+  //==========================================
 
+  var form = d3.select('select')
+
+  graphData.repos.forEach(function(repo) {
+    form.append('option').append('text').text(repo);
+  });
+
+  //BUTTONS
+  //==========================================
+  //==========================================
+
+  d3.select('#hide').on('click', function() {
+    hide(descriptNode);
+    update();
+
+  });
+
+  d3.select('#hidegroup').on('click', function() {
+    var hide_group = function(node) {
+      hide(node).forEach(function(new_node) {
+        hide_group(new_node);
+      });
+    }
+    hide_group(descriptNode);
+    update();
+  });
+
+  d3.select('#findbtn').on('click', function() {
+    n = d3.select('#dropdown')[0][0].value + d3.select('#issueNum')[0][0].value;
+    find(n);
+  });
+
+
+  //GRAPH
+  //==========================================
+  //==========================================
+
+  var width = document.getElementsByTagName('body')[0].clientWidth *.8,
+      height = 500,
+      radius = 10, //radius of circles
+      markerWidth = 6,
+      markerHeight = 6,
+      refX = radius + (markerWidth * 2),
+      refY = 0;
+
+
+
+  var svg = d3.select("#graph").append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr('transform','scale(1)')
+      .attr("viewbox", "0 0 "+width+" "+height).append("g");
+
+  svg.append("defs").selectAll("marker")
+      .data(graphData.keywords)
+    .enter().append("marker")
+      .attr("id", function(d) { return d; })
+      .attr("viewBox", "0 -5 10 10")
+      .attr("refX", refX)
+      .attr("refY", refY)
+      .attr("markerWidth", markerWidth)
+      .attr("markerHeight", markerHeight)
+      .attr("orient", "auto")
+    .append("path")
+      .attr("d", "M0,-5L10,0L0,5")
+      .attr("fill", "#666")
+      .attr("stroke", "#666");
+
+  //Force
+  ////////
+  var force = d3.layout.force()
+      .size([width, height])
+      .linkDistance(70)
+      .charge(-150)
+      .on("tick", tick);
+
+  var nodes = force.nodes(),
+      links = force.links(),
+      node = svg.selectAll(".node"),
+      link = svg.selectAll(".link");
+
+  function tick() {
+    link.attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+
+    node.select("circle")
+        .style("fill", function(d) {
+          return repoColor[d.repo];
+        })
+        .attr("stroke-width", function(d){
+                                if(d.id == descriptNode.id){
+                                  return "5px";
+                                } else {
+                                  return "1.5px";
+                                }
+        });
+    node.select("text")
+        .text(function(d) { if(d.number == 0){
+          return d.title;
+        } else {
+          return d.number;
+        }});
+
+    var xs = [];
+    var ys = [];
+
+    force.nodes().forEach( function(d) {
+      xs.push(d.x);
+      ys.push(d.y);
+    });
+
+    dy = -1 * d3.min([1,d3.min(ys)-50]);
+    dx = -1 * d3.min([1,d3.min(xs)-50]);
+    scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
+
+    svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
+
+
+
+  }
+
+  // force.on("end", function() {
+  //     console.log("resuming");
+      
+  //     force.resume(); // equivalent to force.alpha(.1);
+  // });
+  ////////
+
+
+  //DATA GATHERING
+  //==========================================
+  //==========================================
+  var linkAll = []; 
+
+  var nodeDict = {};
+
+  var linkedNodes = [];
+
+  var repoColor = {};
+
+  graphData.nodes.forEach(function (node) {
+    nodeDict[node.repo+node.number] = node;
+    repoColor[node.repo] = node.repo;
+  })
+
+  graphData.links.forEach(function (link) {
+    link.source = nodeDict[link.source.repo+""+link.source.number];
+    link.target = nodeDict[link.target.repo+""+link.target.number];
+    if(linkedNodes.indexOf(link.source)==-1){ linkedNodes.push(link.source); };
+    if(linkedNodes.indexOf(link.target)==-1){ linkedNodes.push(link.target); };
+    linkAll.push({source: link.source, target: link.target, type: link.type});
+  });
+
+  d3.values(repoColor).forEach( function(repo, i) {
+    var hue = i * 360 /d3.values(repoColor).length;
+    repoColor[repo] = d3.hsl(hue, .5, .5);
+  });
+
+
+  //Initial
+  linkedNodes.forEach( function(node){
+    add(node);
+  });
+  update();
+
+
+  //FUNCTIONS
+  //==========================================
+  //==========================================
+
+  //Update force graph with new nodes and links
+  function update() {
+    link = link.data(links);
+
+    link.enter().insert("line", ".node")
+        .attr("class", "link")
+        .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
+
+    link.exit().remove();
+
+    node = node.data(nodes);
+
+    var newnode = node.enter().append("g")
+        .on("click", function(d) { click(d);})
+        .attr("class", "node")
+        .call(force.drag);
+
+    newnode.append("circle")
+        .attr("r", radius)
+        .attr("class", function(d) { return 'c' + d.id; })
+        .style("stroke", "#333");
+
+    newnode.append("text")
+        .attr("x", 12)
+        .attr("dy", ".35em")
+
+
+    node.exit().remove();
+    force.start();
+  }
+
+  //Update Text description on click
+  //Argument: node clicked
+  function click(d) {
+    descriptNode = d;
+    var matches = descriptNode.body.match(/ [a-z-_/]*#\d+/gi);
+    console.log(matches);
+    if (matches) {
+      matches.forEach(function(match){
+        var id = match.match(/[a-z-_/]+#\d+/gi);
+        if (id && id.length >0) {
+          var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
+          var n = id[0].match(/\d+/)[0];
+          console.log(repo);
+        } else {
+          var id = match.match(/#\d+/);
+          var repo = descriptNode.repo;
+          var n = id[0].match(/\d+/)[0];
+          console.log(n);
+
+        }
+        descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' onclick='find(\""+repo+n+"\")' id='bodybtn'></input><text>");
+      });
+    }
+    d3.select("#text")
+        .html("<text><b>Title: </b>"+descriptNode.title+
+                                      "<br/><b>Number: </b>"+descriptNode.number+
+                                      "<br/><b>Body: </b>"+descriptNode.body+
+                                      "<br/><b>ID: </b>"+descriptNode.id+
+                                      "<br/><b>Repo: </b>"+descriptNode.repo)+
+                                      "</text>";
+
+    tick();
+  }
+
+  //Remove passed in node and adjacent links from graph
+  function hide(n){
+    var i = nodes.indexOf(nodeDict[n.repo+""+n.number])
+    var connect_nodes = [];
+    if (i != -1){
+      var removed = nodes.splice(i,1);
+      for(var i=0; i<links.length; i++){
+        if(links[i].source.id == removed[0].id){
+          connect_nodes.push(links[i].target);
+
+          links.splice(i,1);
+          i--;
+        } else if (links[i].target.id == removed[0].id){
+          connect_nodes.push(links[i].source);
+
+          links.splice(i,1);
+          i--;
+        }
+
+      }
+    }
+
+    descriptNode = {
+      id: '',
+      number: '',
+      title: '',
+      body: '',
+      repo: ''
+    };
+    return connect_nodes;
+  }
+
+  function add(n){
+    if(nodes.indexOf(n)==-1){
+      nodes.push(n);
+      linkAll.forEach(function(link) {
+        if(link.source == n && nodes.indexOf(link.target)!=-1){
+          links.push(link);
+        } else if(link.target == n && nodes.indexOf(link.source)!=-1){
+          links.push(link);
+        }
+      })
+    };
+
+  }
+
+  function find(n){
+    //error message is issue doesn't exist
+    n = nodeDict[n];
+    if (n){
+      add(n);
+      click(n);
+      update();
+    } else {
+      alert("Warning: You are trying to display a non-open issue");
+    }
+
+  }
+};
 </script>

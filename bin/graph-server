@@ -1,0 +1,3 @@
+#! /usr/local/bin/node
+var server = require('../lib/server');
+server.start();
