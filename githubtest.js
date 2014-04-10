@@ -2,15 +2,16 @@ var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
 
-var oauth = "";
-var keywords = [];
-var nodes = [];
-var links = [];
-var repos = [];
-var nodesByNumber = {};
-var count = 0;
-
 var getIssues = function (callback) {
+
+
+	var oauth = "";
+	var keywords = [];
+	var nodes = [];
+	var links = [];
+	var repos = [];
+	var nodesByNumber = {};
+	var count = 0;
 
 	//argument is a path to file containing oauth
 	fs.readFile("oauth", 'utf8', function (err, data) {
@@ -78,7 +79,7 @@ var getIssues = function (callback) {
 				nodes.push(node);
 				nodesByNumber["markitx/" +node.repo + '#' + node.number] = node;
 			});
-			if (res.length == 0){
+			if (res.length === 0){
 				count++;
 				if(count == repos_length){
 					writeData();
@@ -99,12 +100,12 @@ var getIssues = function (callback) {
 			if (matches && matches.length > 0) {
 				matches.forEach(function (match) {
 					var type = match.match(keywordRegEx);
-					if(type == null) type = "n/a";
+					if(type === null) type = "n/a";
 					var id = match.match(/[a-z-_/]+#\d+/i);
 					if (id && id.length >0) {
 						var linkedTo = nodesByNumber[id];
 					} else {
-						var id = match.match(/#\d+/);
+						id = match.match(/#\d+/);
 
 						if (id && id.length >0) {
 							var linkedTo = nodesByNumber["markitx/" + node.repo + id[0].replace(/ /, "")];

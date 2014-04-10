@@ -159,7 +159,6 @@ var descriptNode = {
 $.getJSON("graph-data.json")
   .done(function (data, textStatus, jqXHR) {
     var graphData = data;
-    console.log(data);
     render(graphData);
   })
   .fail();
