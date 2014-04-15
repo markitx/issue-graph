@@ -167,35 +167,40 @@ var render = function (graphData) {
   var form = d3.select('#checkboxForm')
   var label = form.append('label');
   label.append('input')
-        .attr('onclick', 'allbox()')
         .attr('type','checkbox')
-        .attr('class','checkbox')
         .attr('id','all')
         .attr('name','All');
   label.append('text').text('All');
-
   //'All linked' checkbox
   form.append('text').html('<br/>')
   var label = form.append('label');
   label.append('input')
-        .attr('onclick', 'checkbox()')
         .attr('type','checkbox')
         .attr('class','checkbox')
         .attr('checked','checked')
+        .attr('id','checkbox')
         .attr('name','linked');
   label.append('text').text('All linked');
 
-  graphData.repos.forEach(function(repo) {
 
+  graphData.repos.forEach(function (repo) {
     form.append('text').html('<br/>')
     var label = form.append('label');
     label.append('input')
-      .attr('onclick', 'checkbox()')
       .attr('type','checkbox')
       .attr('class','checkbox')
+      .attr('id','checkbox')
       .attr('name',repo);
     label.append('text').text(repo);
   });
+
+  //Add Event listeners
+  document.getElementById('all').addEventListener("click", allbox, false);
+  var checkboxElements = document.getElementsByClassName('checkbox');
+  for (var i=0; i<checkboxElements.length; i++) {
+    checkboxElements[i].addEventListener("click", checkbox, false);
+  }
+
 
   function allbox(){
     if(d3.select('#all')[0][0].checked){
@@ -446,23 +451,23 @@ var render = function (graphData) {
   function click(d) {
     descriptNode = d;
     var matches = descriptNode.body.match(/ [a-z-_/]*#\d+/gi);
-    console.log(matches);
     if (matches) {
       matches.forEach(function(match){
         var id = match.match(/[a-z-_/]+#\d+/gi);
         if (id && id.length >0) {
           var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
           var n = id[0].match(/\d+/)[0];
-          console.log(repo);
         } else {
           var id = match.match(/#\d+/);
           var repo = descriptNode.repo;
           var n = id[0].match(/\d+/)[0];
-          console.log(n);
 
         }
-        descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' onclick='find(\""+repo+n+"\")' id='bodybtn'></input><text>");
+        descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' id='"+repo + n+"' class='bodybtn'></input><text>");
+        //onclick='find(\""+repo+n+"\")'
       });
+
+
     }
     d3.select("#text")
         .html("<text><b>Title: </b>"+descriptNode.title+
@@ -471,7 +476,14 @@ var render = function (graphData) {
                                       "<br/><b>ID: </b>"+descriptNode.id+
                                       "<br/><b>Repo: </b>"+descriptNode.repo)+
                                       "</text>";
+    var bodybtnElements = document.getElementsByClassName('bodybtn');
 
+    console.log(bodybtnElements.length);
+    for (var i=0; i<bodybtnElements.length; i++){
+      bodybtnElements[i].addEventListener("click",function (repoPlus) {
+                                                    find(repoPlus);
+                                                  }.bind(null,bodybtnElements[i].id),false);
+    }
     tick();
   }
 
@@ -522,6 +534,7 @@ var render = function (graphData) {
   }
 
   function find(n){
+    console.log("test");
     //error message is issue doesn't exist
     n = nodeDict[n];
     if (n){

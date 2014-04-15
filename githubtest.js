@@ -2,7 +2,7 @@ var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
 
-var getIssues = function (callback) {
+var issues = function (callback) {
 
 
 	var oauth = "";
@@ -133,4 +133,4 @@ var getIssues = function (callback) {
 	}
 };
 
-module.exports.getIssues = getIssues;
+module.exports.getIssues = issues;
