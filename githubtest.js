@@ -14,7 +14,7 @@ var getIssues = function (callback) {
 	var count = 0;
 
 	//argument is a path to file containing oauth
-	fs.readFile("oauth", 'utf8', function (err, data) {
+	fs.readFile(__dirname+"/oauth", 'utf8', function (err, data) {
 		if (err){
 			console.error("Error: missing oauth file");
 			process.exit(-1);
@@ -32,7 +32,7 @@ var getIssues = function (callback) {
 			token: oauth
 		});
 
-		fs.readFile("keywords.json", 'utf8', function (err, data) {
+		fs.readFile(__dirname+"/keywords.json", 'utf8', function (err, data) {
 			if (err) {
 				return console.log(err);
 			}
