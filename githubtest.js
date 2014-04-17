@@ -2,10 +2,9 @@ var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
 
-var issues = function (callback) {
+var issues = function (oauth, callback) {
 
 
-	var oauth = "";
 	var keywords = [];
 	var nodes = [];
 	var links = [];
@@ -13,44 +12,34 @@ var issues = function (callback) {
 	var nodesByNumber = {};
 	var count = 0;
 
-	//argument is a path to file containing oauth
-	fs.readFile(__dirname+"/oauth", 'utf8', function (err, data) {
-		if (err){
-			console.error("Error: missing oauth file");
-			process.exit(-1);
+	var github = new GitHubApi({
+		version: '3.0.0',
+	});
+
+	github.authenticate({
+		type: "oauth",
+		token: oauth
+	});
+
+	fs.readFile(__dirname+"/keywords.json", 'utf8', function (err, data) {
+		if (err) {
+			return console.log(err);
 		}
-		var oauth = data;
-
-		var github = new GitHubApi({
-			version: '3.0.0',
-		});
+		keywords = (JSON.parse(data).keywords);
+		keywords.push("n/a");
 
 
-
-		github.authenticate({
-			type: "oauth",
-			token: oauth
-		});
-
-		fs.readFile(__dirname+"/keywords.json", 'utf8', function (err, data) {
-			if (err) {
-				return console.log(err);
-			}
-			keywords = (JSON.parse(data).keywords);
-			keywords.push("n/a");
-
-
-			github.repos.getFromOrg({
-				org: "markitx"
-			}, function(err, res) {
-				var repos_length = res.length;
-				res.forEach( function(repo,index) { //repo is each repo in org
-					repos.push(repo.name);
-					getIssues(github,repo.name,1, repos_length);
-
-				});
+		github.repos.getFromOrg({
+			org: "markitx"
+		}, function(err, res) {
+			console.log(res.length);
+			var repos_length = res.length;
+			res.forEach( function (repo,index) { //repo is each repo in org
+				repos.push(repo.name);
+				getIssues(github,repo.name,1, repos_length);
 
 			});
+
 		});
 	});
 
