@@ -117,7 +117,7 @@ var issues = function (oauth, callback) {
 			nodes: nodes,
 			links: links
 		};
-		console.log(JSON.stringify(graphData, null, 2));
+		//console.log(JSON.stringify(graphData, null, 2));
 		callback(null, graphData);
 	}
 };

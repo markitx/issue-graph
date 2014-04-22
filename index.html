@@ -72,7 +72,12 @@ div#info {
 }
 
 #dropdown {
+  margin: 0px;
+
   width:50%;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
 
 
 }
@@ -80,8 +85,9 @@ div#info {
 #issueNum {
   margin: 0px;
   width:45%;
-
-
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
 }
 
 #findbtn {
@@ -476,6 +482,7 @@ var render = function (graphData) {
                                       "<br/><b>ID: </b>"+descriptNode.id+
                                       "<br/><b>Repo: </b>"+descriptNode.repo)+
                                       "</text>";
+    
     var bodybtnElements = document.getElementsByClassName('bodybtn');
 
     console.log(bodybtnElements.length);
