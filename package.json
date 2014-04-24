@@ -19,7 +19,8 @@
     "cookie-session": "~1.0.1",
     "cookie-parser": "~1.0.1",
     "express-session": "~1.0.2",
-    "everyauth": "~0.4.5"
+    "everyauth": "~0.4.5",
+    "body-parser": "^1.0.2"
   },
   "devDependencies": {
     "mocha": "~1.17.1"

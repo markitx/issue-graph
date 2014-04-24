@@ -39,6 +39,7 @@ div#side {
 }
 
 div#side div#filter{
+  line-height:160%;
   padding: 5px;
   height: 435px;
   margin-left: 10px;
@@ -135,11 +136,16 @@ label {
 <div id='side'>
   <div id='filter'>
     Login<br/>
-    <form id='loginForm'>
-      <select id='orgdrop' disabled></select><input id='publictext' type='text' placeholder='Repo' disabled></input>
-      <label><input type='checkbox'></input>User</label><br/>
-      <label><input type='checkbox'></input>Org</label>
-      <br/><label><input type='checkbox'></input>Public</label>
+    <form id='loginForm' method='post' action='/login'>
+      <input type='radio' id='user' name='source' value='1' checked><text>User</text><br/>
+
+      <input type='radio' id='org' name='source' value='2'><text>Org</text>
+      <select id='orgdrop' name='sname' disabled></select><br/>
+
+      <input type='radio' id='public' name='source' value='3'><text>Public</text>
+      <input id='publictext' type='text' name='sname' placeholder='Repo' disabled required>
+
+      <input type="submit" class="submit" value="SUBMIT" />
     </form>
   </div>
   <div id='find'>
@@ -162,26 +168,14 @@ label {
 
 <script>
 
-//TEXT DESCRIPTION
-//==========================================
-//==========================================
 var description = d3.select(".description")
     .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
 
-var descriptNode = {
-  id: '',
-  number: '',
-  title: '',
-  body: '',
-  repo: ''
-};
-//CHECKBOXS
-//==========================================
-//==========================================
-//Adds checkbox for each repo
+function submit(){
+
+}
 
 
-//Repo checkboxes
 $.getJSON("orgs.json")
   .done(function (data, textStatus, jqXHR) {
     var orgs = data;
@@ -189,7 +183,27 @@ $.getJSON("orgs.json")
   })
   .fail();
 var render = function (orgs) {
-  //'All' checkbox
-  var form = d3.select('#loginForm')
+  document.getElementById('user').addEventListener("click", userClick, false);
+  function userClick(){
+    document.getElementById('orgdrop').disabled = "true";
+    document.getElementById('publictext').disabled = "true";
+  }
+
+  document.getElementById('org').addEventListener("click", orgClick, false);
+  function orgClick(){
+    document.getElementById('orgdrop').disabled = null;
+    document.getElementById('publictext').disabled = "true";
+  }
+  document.getElementById('public').addEventListener("click", pubClick, false);
+  function pubClick(){
+    document.getElementById('publictext').disabled = null;
+    document.getElementById('orgdrop').disabled = "true";
+  }
+
+  orgs.forEach(function(org) {
+    d3.select('select').append('option').append('text').text(org);
+  });
+
 }
+
 </script>

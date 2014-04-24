@@ -2,7 +2,7 @@ var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
 
-var issues = function (oauth, callback) {
+var issues = function (oauth, source, sname, callback) {
 
 
 	var keywords = [];
@@ -27,20 +27,21 @@ var issues = function (oauth, callback) {
 		}
 		keywords = (JSON.parse(data).keywords);
 		keywords.push("n/a");
+		if (source == 2){
+			github.repos.getFromOrg({
+				org: sname
+			}, function(err, res) {
+				console.log(res.length);
+				var repos_length = res.length;
+				res.forEach( function (repo,index) { //repo is each repo in org
+					repos.push(repo.name);
+					getIssues(github,repo.name,1, repos_length);
 
-
-		github.repos.getFromOrg({
-			org: "markitx"
-		}, function(err, res) {
-			console.log(res.length);
-			var repos_length = res.length;
-			res.forEach( function (repo,index) { //repo is each repo in org
-				repos.push(repo.name);
-				getIssues(github,repo.name,1, repos_length);
+				});
 
 			});
+		}
 
-		});
 	});
 
 	function getIssues(github,name,pageN,repos_length){

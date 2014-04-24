@@ -13,7 +13,10 @@ var orgs = function (uid, oauth, callback) {
 	github.orgs.getFromUser({
 		user: uid
 	}, function (err,res) {
-		callback(err,res);
+		var result = res.map( function (element) {
+			return element.login;
+		})
+		callback(err,result);
 	});
 };
 
