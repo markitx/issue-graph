@@ -103,7 +103,6 @@ circle {
 text {
   font: 10px sans-serif;
   pointer-events: none;
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
 .bodybtn {
   font: 10px sans-serif;
@@ -119,7 +118,6 @@ text {
 <div id='side'>
   <div id='filter'>
     <a style='float:right' href="/login"><text>Switch Source</text></a> 
-
     Filter<br/>
     <form id='checkboxForm'>
     </form>
@@ -157,13 +155,7 @@ var descriptNode = {
   body: '',
   repo: ''
 };
-//CHECKBOXS
-//==========================================
-//==========================================
-//Adds checkbox for each repo
 
-
-//Repo checkboxes
 $.getJSON("graph-data.json")
   .done(function (data, textStatus, jqXHR) {
     var graphData = data;
@@ -171,80 +163,6 @@ $.getJSON("graph-data.json")
   })
   .fail();
 var render = function (graphData) {
-  //'All' checkbox
-  var form = d3.select('#checkboxForm')
-  var label = form.append('label');
-  label.append('input')
-        .attr('type','checkbox')
-        .attr('id','all')
-        .attr('name','All');
-  label.append('text').text('All');
-  //'All linked' checkbox
-  form.append('text').html('<br/>')
-  var label = form.append('label');
-  label.append('input')
-        .attr('type','checkbox')
-        .attr('class','checkbox')
-        .attr('checked','checked')
-        .attr('id','checkbox')
-        .attr('name','linked');
-  label.append('text').text('All linked');
-
-
-  graphData.repos.forEach(function (repo) {
-    form.append('text').html('<br/>')
-    var label = form.append('label');
-    label.append('input')
-      .attr('type','checkbox')
-      .attr('class','checkbox')
-      .attr('id','checkbox')
-      .attr('name',repo);
-    label.append('text').text(repo);
-  });
-
-  //Add Event listeners
-  document.getElementById('all').addEventListener("click", allbox, false);
-  var checkboxElements = document.getElementsByClassName('checkbox');
-  for (var i=0; i<checkboxElements.length; i++) {
-    checkboxElements[i].addEventListener("click", checkbox, false);
-  }
-
-
-  function allbox(){
-    if(d3.select('#all')[0][0].checked){
-      d3.selectAll('.checkbox').property('checked', true);
-    } else {
-      d3.selectAll('.checkbox').property('checked', false);
-    }
-
-    checkbox();
-  }
-
-  function checkbox(){
-    //Remove all nodes
-    while(nodes.length>0){
-      hide(nodes[0]);
-    }
-    d3.selectAll('.checkbox')[0].forEach(function(checkbox){
-      if(checkbox.checked){
-        if(checkbox.name == 'linked'){
-          linkedNodes.forEach( function(node){
-            add(node);
-          });
-        }
-
-
-        d3.values(nodeDict).forEach(function(node){
-          if(node.repo == checkbox.name){
-            add(node);
-          }
-        });
-      }
-    });
-    update();
-
-
-  }
 
   //DROPDOWN
   //==========================================
@@ -393,8 +311,15 @@ var render = function (graphData) {
 
   var repoColor = {};
 
+  var repoCount = {};
+
   graphData.nodes.forEach(function (node) {
     nodeDict[node.repo+node.number] = node;
+    if (repoCount[node.repo] == null){
+      repoCount[node.repo] = 1;
+    } else {
+      repoCount[node.repo]++;
+    }
     repoColor[node.repo] = node.repo;
   })
 
@@ -417,6 +342,99 @@ var render = function (graphData) {
     add(node);
   });
   update();
+
+
+
+  //CHECKBOXS
+  //==========================================
+  //==========================================
+  //Adds checkbox for each repo
+
+
+  //Repo checkboxes
+    
+  //'All' checkbox
+  var form = d3.select('#checkboxForm')
+  var label = form.append('label');
+  label.append('input')
+        .attr('type','checkbox')
+        .attr('id','all')
+        .attr('name','All');
+  label.append('text').text('All');
+  //'All linked' checkbox
+  form.append('text').html('<br/>')
+  var label = form.append('label');
+  label.append('input')
+        .attr('type','checkbox')
+        .attr('class','checkbox')
+        .attr('checked','checked')
+        .attr('id','checkbox')
+        .attr('name','linked');
+  label.append('text').text('All linked');
+
+
+  graphData.repos.forEach(function (repo) {
+    form.append('text').html('<br/>')
+    var label = form.append('label');
+    label.append('input')
+      .attr('type','checkbox')
+      .attr('class','checkbox')
+      .attr('id','checkbox')
+      .attr('name',repo);
+    label.append('font').attr('color',repoColor[repo]).append('text').text(repo + ' ('+ getCount(repo)+')');
+  });
+
+  function getCount (repo) {
+    if (repoCount[repo]){
+      return repoCount[repo];
+    } else {
+      return 0;
+    }
+  }
+
+  //Add Event listeners
+  document.getElementById('all').addEventListener("click", allbox, false);
+  var checkboxElements = document.getElementsByClassName('checkbox');
+  for (var i=0; i<checkboxElements.length; i++) {
+    checkboxElements[i].addEventListener("click", checkbox, false);
+  }
+
+
+  function allbox(){
+    if(d3.select('#all')[0][0].checked){
+      d3.selectAll('.checkbox').property('checked', true);
+    } else {
+      d3.selectAll('.checkbox').property('checked', false);
+    }
+
+    checkbox();
+  }
+
+  function checkbox(){
+    //Remove all nodes
+    while(nodes.length>0){
+      hide(nodes[0]);
+    }
+    d3.selectAll('.checkbox')[0].forEach(function(checkbox){
+      if(checkbox.checked){
+        if(checkbox.name == 'linked'){
+          linkedNodes.forEach( function(node){
+            add(node);
+          });
+        }
+
+
+        d3.values(nodeDict).forEach(function(node){
+          if(node.repo == checkbox.name){
+            add(node);
+          }
+        });
+      }
+    });
+    update();
+
+
+  }
 
 
   //FUNCTIONS
@@ -458,21 +476,24 @@ var render = function (graphData) {
   //Argument: node clicked
   function click(d) {
     descriptNode = d;
-    var matches = descriptNode.body.match(/ [a-z-_/]*#\d+/gi);
+    var matches = descriptNode.body.match(/[\'a-z-_/]*#\d+/gi);
     if (matches) {
       matches.forEach(function(match){
-        var id = match.match(/[a-z-_/]+#\d+/gi);
-        if (id && id.length >0) {
-          var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
-          var n = id[0].match(/\d+/)[0];
-        } else {
-          var id = match.match(/#\d+/);
-          var repo = descriptNode.repo;
-          var n = id[0].match(/\d+/)[0];
+        if (match.substring(0,1) != '\''){
+          var id = match.match(/[a-z-_/]+#\d+/gi);
+          if (id && id.length >0) {
+            var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
+            var n = id[0].match(/\d+/)[0];
+          } else {
+            var id = match.match(/#\d+/);
+            var repo = descriptNode.repo;
+            var n = id[0].match(/\d+/)[0];
 
+          }
+          descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' id='"+repo + n+"' class='bodybtn'></input><text>");
+          //onclick='find(\""+repo+n+"\")'
         }
-        descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' id='"+repo + n+"' class='bodybtn'></input><text>");
-        //onclick='find(\""+repo+n+"\")'
+
       });
 
 

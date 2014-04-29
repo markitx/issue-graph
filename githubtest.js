@@ -88,12 +88,12 @@ var issues = function (session, callback) {
 					repo: name
 				};
 				nodes.push(node);
-				nodesByNumber["markitx/" +node.repo + '#' + node.number] = node;
+				nodesByNumber[user + "/" +node.repo + '#' + node.number] = node;
 			});
 			if (res.length === 0){
 				count++;
 				if(count == repos_length){
-					writeData();
+					writeData(user);
 				}
 			} else {
 				getIssues(user,github, name, pageN+1, repos_length);
@@ -103,7 +103,7 @@ var issues = function (session, callback) {
 		});
 	}
 
-	function writeData(){
+	function writeData(user){
 		var linkPattern = /[a-z]* ?[a-z-_/]*#\d+/gi;
 		var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
 		nodes.forEach(function (node) {
@@ -119,7 +119,7 @@ var issues = function (session, callback) {
 						id = match.match(/#\d+/);
 
 						if (id && id.length >0) {
-							var linkedTo = nodesByNumber["markitx/" + node.repo + id[0].replace(/ /, "")];
+							var linkedTo = nodesByNumber[user +"/" + node.repo + id[0].replace(/ /, "")];
 						}
 					}
 					if (linkedTo) {
