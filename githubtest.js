@@ -2,7 +2,7 @@ var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
 
-var issues = function (oauth, source, sname, callback) {
+var issues = function (session, callback) {
 
 
 	var keywords = [];
@@ -18,7 +18,7 @@ var issues = function (oauth, source, sname, callback) {
 
 	github.authenticate({
 		type: "oauth",
-		token: oauth
+		token: session.oauth
 	});
 
 	fs.readFile(__dirname+"/keywords.json", 'utf8', function (err, data) {
@@ -27,26 +27,47 @@ var issues = function (oauth, source, sname, callback) {
 		}
 		keywords = (JSON.parse(data).keywords);
 		keywords.push("n/a");
-		if (source == 2){
-			github.repos.getFromOrg({
-				org: sname
-			}, function(err, res) {
-				console.log(res.length);
-				var repos_length = res.length;
-				res.forEach( function (repo,index) { //repo is each repo in org
-					repos.push(repo.name);
-					getIssues(github,repo.name,1, repos_length);
-
-				});
-
+		if (session.source == 1) {
+			github.repos.getFromUser({
+				user: session.uid,
+				type: 'all'
+			}, function (err, res) {
+				callGetIssues(res, session.uid);
 			});
+		} else if (session.source == 2){
+			github.repos.getFromOrg({
+				org: session.sname
+			}, function (err, res) {
+				callGetIssues(res, session.sname);
+			});
+		} else {
+			github.repos.getFromUser({
+				user: session.sname
+			}, function (err, res) {
+				callGetIssues(res, session.sname);
+			});
+		}
+
+		function callGetIssues(repoList, user){
+			var filtered = repoList.filter(function (repo) {
+				return repo.has_issues;
+			});
+			repos = repoList.map(function (repo) {
+				return repo.name;
+			});
+
+			var repos_length = filtered.length;
+			filtered.forEach( function (repo,index) { //repo is each repo in org
+				getIssues(user,github,repo.name,1, repos_length);
+			});
+
 		}
 
 	});
 
-	function getIssues(github,name,pageN,repos_length){
+	function getIssues(user,github,name,pageN,repos_length){
 		github.issues.repoIssues({
-			user: "markitx",
+			user: user,
 			repo: name,
 			page: pageN,
 			per_page: 100
@@ -75,7 +96,7 @@ var issues = function (oauth, source, sname, callback) {
 					writeData();
 				}
 			} else {
-				getIssues(github, name, pageN+1, repos_length);
+				getIssues(user,github, name, pageN+1, repos_length);
 			}
 
 
