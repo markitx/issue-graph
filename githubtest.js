@@ -84,7 +84,7 @@ var issues = function (session, callback) {
 					id: '' + value.id,
 					number: value.number,
 					title: value.title,
-					body: value.body,
+					body: marked(value.body),
 					repo: name
 				};
 				nodes.push(node);
@@ -104,7 +104,7 @@ var issues = function (session, callback) {
 	}
 
 	function writeData(user){
-		var linkPattern = /[a-z]* ?[a-z-_/]*#\d+/gi;
+		var linkPattern = /[a-z]* ?[&a-z-_/]*#\d+/gi;
 		var keywordRegEx = new RegExp(keywords.join('|')); //regex for keywords
 		nodes.forEach(function (node) {
 			var matches = node.body.match(linkPattern);
@@ -112,9 +112,11 @@ var issues = function (session, callback) {
 				matches.forEach(function (match) {
 					var type = match.match(keywordRegEx);
 					if(type === null) type = "n/a";
-					var id = match.match(/[a-z-_/]+#\d+/i);
+					var id = match.match(/[&a-z-_/]+#\d+/i);
 					if (id && id.length >0) {
-						var linkedTo = nodesByNumber[id];
+						if (match.indexOf('&') == -1){
+							var linkedTo = nodesByNumber[id];
+						}
 					} else {
 						id = match.match(/#\d+/);
 

@@ -15,7 +15,7 @@ var orgs = function (uid, oauth, callback) {
 	}, function (err,res) {
 		var result = res.map( function (element) {
 			return element.login;
-		})
+		});
 		callback(err,result);
 	});
 };

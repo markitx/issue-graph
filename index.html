@@ -104,6 +104,10 @@ text {
   font: 10px sans-serif;
   pointer-events: none;
 }
+#text {
+  font: 10px sans-serif;
+}
+
 .bodybtn {
   font: 10px sans-serif;
   padding: 0px;
@@ -130,7 +134,6 @@ text {
 </div>
 <div id='info'>
   <div id='text'>
-    <text class='description'></text>
   </div>
   <div>
     <input type='button' id='hide' value='Hide' class="btn"></input>
@@ -145,7 +148,7 @@ text {
 //TEXT DESCRIPTION
 //==========================================
 //==========================================
-var description = d3.select(".description")
+var description = d3.select("#text")
     .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
 
 var descriptNode = {
@@ -476,10 +479,11 @@ var render = function (graphData) {
   //Argument: node clicked
   function click(d) {
     descriptNode = d;
-    var matches = descriptNode.body.match(/[\'a-z-_/]*#\d+/gi);
+    var matches = descriptNode.body.match(/[&\'a-z-_/]*#\d+/gi);
     if (matches) {
       matches.forEach(function(match){
-        if (match.substring(0,1) != '\''){
+        console.log(match);
+        if (match.indexOf('\'') == -1 && match.indexOf('&') == -1){
           var id = match.match(/[a-z-_/]+#\d+/gi);
           if (id && id.length >0) {
             var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
@@ -490,7 +494,7 @@ var render = function (graphData) {
             var n = id[0].match(/\d+/)[0];
 
           }
-          descriptNode.body = descriptNode.body.replace(match,"</text><input type='button' value='"+id+"' id='"+repo + n+"' class='bodybtn'></input><text>");
+          descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n+"' class='bodybtn'></input>");
           //onclick='find(\""+repo+n+"\")'
         }
 
@@ -498,13 +502,12 @@ var render = function (graphData) {
 
 
     }
-    d3.select("#text")
-        .html("<text><b>Title: </b>"+descriptNode.title+
+    document.getElementById('text').innerHTML = "<b>Title: </b>"+descriptNode.title+
                                       "<br/><b>Number: </b>"+descriptNode.number+
                                       "<br/><b>Body: </b>"+descriptNode.body+
                                       "<br/><b>ID: </b>"+descriptNode.id+
-                                      "<br/><b>Repo: </b>"+descriptNode.repo)+
-                                      "</text>";
+                                      "<br/><b>Repo: </b>"+descriptNode.repo+
+                                      "";
     
     var bodybtnElements = document.getElementsByClassName('bodybtn');
 
