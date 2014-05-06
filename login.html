@@ -205,7 +205,7 @@ var render = function (orgs) {
     document.getElementById('orgdrop').disabled = "true";
   }
 
-  orgs.forEach(function(org) {
+  orgs.forEach(function (org) {
     d3.select('select').append('option').append('text').text(org);
   });
 

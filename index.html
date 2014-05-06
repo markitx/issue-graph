@@ -175,7 +175,7 @@ var render = function (graphData) {
 
   var form = d3.select('select')
 
-  graphData.repos.forEach(function(repo) {
+  graphData.repos.forEach(function (repo) {
     form.append('option').append('text').text(repo);
   });
 
@@ -186,12 +186,11 @@ var render = function (graphData) {
   d3.select('#hide').on('click', function() {
     hide(descriptNode);
     update();
-
   });
 
   d3.select('#hidegroup').on('click', function() {
-    var hide_group = function(node) {
-      hide(node).forEach(function(new_node) {
+    var hide_group = function (node) {
+      hide(node).forEach(function (new_node) {
         hide_group(new_node);
       });
     }
@@ -228,7 +227,7 @@ var render = function (graphData) {
   svg.append("defs").selectAll("marker")
       .data(graphData.keywords)
     .enter().append("marker")
-      .attr("id", function(d) { return d; })
+      .attr("id", function (d) { return d; })
       .attr("viewBox", "0 -5 10 10")
       .attr("refX", refX)
       .attr("refY", refY)
@@ -254,18 +253,18 @@ var render = function (graphData) {
       link = svg.selectAll(".link");
 
   function tick() {
-    link.attr("x1", function(d) { return d.source.x; })
-        .attr("y1", function(d) { return d.source.y; })
-        .attr("x2", function(d) { return d.target.x; })
-        .attr("y2", function(d) { return d.target.y; });
+    link.attr("x1", function (d) { return d.source.x; })
+        .attr("y1", function (d) { return d.source.y; })
+        .attr("x2", function (d) { return d.target.x; })
+        .attr("y2", function (d) { return d.target.y; });
 
-    node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
 
     node.select("circle")
-        .style("fill", function(d) {
+        .style("fill", function (d) {
           return repoColor[d.repo];
         })
-        .attr("stroke-width", function(d){
+        .attr("stroke-width", function (d){
                                 if(d.id == descriptNode.id){
                                   return "5px";
                                 } else {
@@ -273,7 +272,7 @@ var render = function (graphData) {
                                 }
         });
     node.select("text")
-        .text(function(d) { if(d.number == 0){
+        .text(function (d) { if(d.number == 0){
           return d.title;
         } else {
           return d.number;
@@ -282,7 +281,7 @@ var render = function (graphData) {
     var xs = [];
     var ys = [];
 
-    force.nodes().forEach( function(d) {
+    force.nodes().forEach(function (d) {
       xs.push(d.x);
       ys.push(d.y);
     });
@@ -292,17 +291,8 @@ var render = function (graphData) {
     scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
 
     svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
-
-
-
   }
 
-  // force.on("end", function() {
-  //     console.log("resuming");
-      
-  //     force.resume(); // equivalent to force.alpha(.1);
-  // });
-  ////////
 
 
   //DATA GATHERING
@@ -336,14 +326,14 @@ var render = function (graphData) {
     linkAll.push({source: link.source, target: link.target, type: link.type});
   });
 
-  d3.values(repoColor).forEach( function(repo, i) {
+  d3.values(repoColor).forEach(function (repo, i) {
     var hue = i * 360 /d3.values(repoColor).length;
     repoColor[repo] = d3.hsl(hue, .5, .5);
   });
 
 
   //Initial
-  linkedNodes.forEach( function(node){
+  linkedNodes.forEach(function (node){
     add(node);
   });
   update();
@@ -389,7 +379,7 @@ var render = function (graphData) {
     label.append('font').attr('color',repoColor[repo]).append('text').text(repo + ' ('+ getCount(repo)+')');
   });
 
-  function getCount (repo) {
+  function getCount(repo) {
     if (repoCount[repo]){
       return repoCount[repo];
     } else {
@@ -423,13 +413,13 @@ var render = function (graphData) {
     d3.selectAll('.checkbox')[0].forEach(function(checkbox){
       if(checkbox.checked){
         if(checkbox.name == 'linked'){
-          linkedNodes.forEach( function(node){
+          linkedNodes.forEach(function (node) {
             add(node);
           });
         }
 
 
-        d3.values(nodeDict).forEach(function(node){
+        d3.values(nodeDict).forEach(function (node){
           if(node.repo == checkbox.name){
             add(node);
           }
@@ -452,20 +442,20 @@ var render = function (graphData) {
 
     link.enter().insert("line", ".node")
         .attr("class", "link")
-        .attr("marker-end", function(d) { return "url(#" + d.type + ")"; });
+        .attr("marker-end", function (d) { return "url(#" + d.type + ")"; });
 
     link.exit().remove();
 
     node = node.data(nodes);
 
     var newnode = node.enter().append("g")
-        .on("click", function(d) { click(d);})
+        .on("click", function (d) { click(d);})
         .attr("class", "node")
         .call(force.drag);
 
     newnode.append("circle")
         .attr("r", radius)
-        .attr("class", function(d) { return 'c' + d.id; })
+        .attr("class", function (d) { return 'c' + d.id; })
         .style("stroke", "#333");
 
     newnode.append("text")
@@ -483,8 +473,7 @@ var render = function (graphData) {
     descriptNode = d;
     var matches = descriptNode.body.match(/[&\'a-z-_/]*#\d+/gi);
     if (matches) {
-      matches.forEach(function(match){
-        console.log(match);
+      matches.forEach(function (match) {
         if (match.indexOf('\'') == -1 && match.indexOf('&') == -1){
           var id = match.match(/[a-z-_/]+#\d+/gi);
           if (id && id.length >0) {
@@ -509,12 +498,10 @@ var render = function (graphData) {
                                       "<br/><b>Body: </b>"+descriptNode.body+
                                       "<br/><b>ID: </b>"+descriptNode.id+
                                       "<br/><b>Assignee: </b>"+descriptNode.assignee+
-                                      "<br/><b>Repo: </b>"+descriptNode.repo+
-                                      "";
+                                      "<br/><b>Repo: </b>"+descriptNode.repo;
     
     var bodybtnElements = document.getElementsByClassName('bodybtn');
 
-    console.log(bodybtnElements.length);
     for (var i=0; i<bodybtnElements.length; i++){
       bodybtnElements[i].addEventListener("click",function (repoPlus) {
                                                     find(repoPlus);
@@ -532,7 +519,6 @@ var render = function (graphData) {
       for(var i=0; i<links.length; i++){
         if(links[i].source.id == removed[0].id){
           connect_nodes.push(links[i].target);
-
           links.splice(i,1);
           i--;
         } else if (links[i].target.id == removed[0].id){
@@ -545,13 +531,14 @@ var render = function (graphData) {
       }
     }
 
-    descriptNode = {
+    click({
       id: '',
       number: '',
       title: '',
       body: '',
+      assignee: '',
       repo: ''
-    };
+    });
     return connect_nodes;
   }
 
@@ -570,7 +557,6 @@ var render = function (graphData) {
   }
 
   function find(n){
-    console.log("test");
     //error message is issue doesn't exist
     n = nodeDict[n];
     if (n){
