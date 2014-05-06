@@ -157,7 +157,8 @@ var descriptNode = {
   title: '',
   body: '',
   assignee: '',
-  repo: ''
+  repo: '',
+  url: ''
 };
 
 $.getJSON("graph-data.json")
@@ -503,7 +504,7 @@ var render = function (graphData) {
 
 
     }
-    document.getElementById('text').innerHTML = "<b>Title: </b>"+descriptNode.title+
+    document.getElementById('text').innerHTML = "<b>Title: </b><a href='" + descriptNode.url + "' target='_blank'>"+descriptNode.title+"</a>"+
                                       "<br/><b>Number: </b>"+descriptNode.number+
                                       "<br/><b>Body: </b>"+descriptNode.body+
                                       "<br/><b>ID: </b>"+descriptNode.id+

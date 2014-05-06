@@ -88,7 +88,8 @@ var issues = function (session, callback) {
 					title: value.title,
 					body: marked(value.body),
 					assignee: value.assignee ? value.assignee.login : "none",
-					repo: name
+					repo: name,
+					url: value.html_url
 				};
 				nodes.push(node);
 				nodesByNumber[user + "/" +node.repo + '#' + node.number] = node;
