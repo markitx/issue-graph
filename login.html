@@ -123,6 +123,10 @@ text {
   pointer-events: none;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
+
+#text {
+  font: 10px sans-serif;
+}
 label {
   font: 12px sans-serif;
   pointer-events: none;
@@ -162,7 +166,6 @@ label {
 </div>
 <div id='info'>
   <div id='text'>
-    <text class='description'></text>
   </div>
   <div>
     <input type='button' id='hide' value='Hide' class="btn" disabled></input>
@@ -174,12 +177,8 @@ label {
 
 <script>
 
-var description = d3.select(".description")
-    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
-
-function submit(){
-
-}
+var description = d3.select("#text")
+    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Assignee: </b><br/><b>Repo: </b>");
 
 
 $.getJSON("orgs.json")
