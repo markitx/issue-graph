@@ -149,13 +149,14 @@ text {
 //==========================================
 //==========================================
 var description = d3.select("#text")
-    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Repo: </b>");
+    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Assignee: </b><br/><b>Repo: </b>");
 
 var descriptNode = {
   id: '',
   number: '',
   title: '',
   body: '',
+  assignee: '',
   repo: ''
 };
 
@@ -506,6 +507,7 @@ var render = function (graphData) {
                                       "<br/><b>Number: </b>"+descriptNode.number+
                                       "<br/><b>Body: </b>"+descriptNode.body+
                                       "<br/><b>ID: </b>"+descriptNode.id+
+                                      "<br/><b>Assignee: </b>"+descriptNode.assignee+
                                       "<br/><b>Repo: </b>"+descriptNode.repo+
                                       "";
     

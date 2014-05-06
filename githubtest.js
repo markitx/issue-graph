@@ -2,6 +2,7 @@ var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
 
+
 var issues = function (session, callback) {
 
 
@@ -80,11 +81,13 @@ var issues = function (session, callback) {
 			}
 			res.forEach( function(value) {
 				// copy over just the values we want
+
 				var node = {
 					id: '' + value.id,
 					number: value.number,
 					title: value.title,
 					body: marked(value.body),
+					assignee: value.assignee ? value.assignee.login : "none",
 					repo: name
 				};
 				nodes.push(node);
