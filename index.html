@@ -138,6 +138,8 @@ text {
   <div>
     <input type='button' id='hide' value='Hide' class="btn"></input>
     <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
+    <input type='button' id='group' value='group' class="btn"></input>
+
   </div>
 </div>
 
@@ -160,6 +162,8 @@ var descriptNode = {
   repo: '',
   url: ''
 };
+
+var groupDict = null;
 
 $.getJSON("graph-data.json")
   .done(function (data, textStatus, jqXHR) {
@@ -244,6 +248,7 @@ var render = function (graphData) {
   var force = d3.layout.force()
       .size([width, height])
       .linkDistance(70)
+      //.gravity(0)
       .charge(-150)
       .on("tick", tick);
 
@@ -252,7 +257,14 @@ var render = function (graphData) {
       node = svg.selectAll(".node"),
       link = svg.selectAll(".link");
 
-  function tick() {
+  function tick(e) {
+    if (groupDict){
+      nodes.forEach(function(o, i) {
+        o.x += groupDict[o.assignee] * 10 * force.alpha();
+      });
+    }
+
+
     link.attr("x1", function (d) { return d.source.x; })
         .attr("y1", function (d) { return d.source.y; })
         .attr("x2", function (d) { return d.target.x; })
@@ -376,16 +388,9 @@ var render = function (graphData) {
       .attr('class','checkbox')
       .attr('id','checkbox')
       .attr('name',repo);
-    label.append('font').attr('color',repoColor[repo]).append('text').text(repo + ' ('+ getCount(repo)+')');
+    label.append('font').attr('color',repoColor[repo]).append('text').text(repo + ' ('+ (repoCount[repo] || 0)+')');
   });
 
-  function getCount(repo) {
-    if (repoCount[repo]){
-      return repoCount[repo];
-    } else {
-      return 0;
-    }
-  }
 
   //Add Event listeners
   document.getElementById('all').addEventListener("click", allbox, false);
@@ -485,7 +490,7 @@ var render = function (graphData) {
             var n = id[0].match(/\d+/)[0];
 
           }
-          descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n+"' class='bodybtn'></input>");
+          descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n + "' class='bodybtn'></input>");
           //onclick='find(\""+repo+n+"\")'
         }
 
@@ -567,6 +572,28 @@ var render = function (graphData) {
       alert("Warning: You are trying to display a non-open issue");
     }
 
+  }
+  document.getElementById('group').addEventListener("click", group, false);
+  function group(){
+    console.log("group");
+    if (groupDict) {
+      groupDict = null;
+      force.linkStrength(1);
+
+    } else {
+      groupDict = {};
+      var i = 1;
+      nodes.forEach(function (node) {
+        if (!groupDict[node.assignee]){
+          groupDict[node.assignee] = i
+          i = i > 0 ? -i : -i + 1;
+        }
+      });
+      console.log(groupDict);
+      force.linkStrength(0);
+
+    }
+    update();
   }
 };
 </script>
