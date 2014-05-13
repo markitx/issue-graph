@@ -163,7 +163,6 @@ var descriptNode = {
   url: ''
 };
 
-var groupDict = null;
 
 $.getJSON("graph-data.json")
   .done(function (data, textStatus, jqXHR) {
@@ -264,7 +263,6 @@ var render = function (graphData) {
       });
     }
 
-
     link.attr("d", linkArc);
 
     node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
@@ -300,7 +298,27 @@ var render = function (graphData) {
     scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
 
     svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
+    
+    var groups = d3.nest().key(function(d) {return d.assignee; }).entries(nodes);
+    var groupPath = function(d) {
+        var hull = d3.geom.hull(d.values.map(function(i) { return [i.x, i.y]; }));
+        return hull.length > 0 ? "M" + hull.join("L") + "Z" : "M0 0";
+    };
+
+    svg.selectAll(".group")
+      .data(groups)
+        .attr("class","group")
+        .attr("d", groupPath)
+      .enter().insert("path",".node")
+        .attr("class","group")
+        .style("fill", "black")
+        .style("stroke", "black")
+        .style("stroke-width", 40)
+        .style("stroke-linejoin", "round")
+        .style("opacity", .2)
+        .attr("d", groupPath);
   }
+
 
   function linkArc(d) {
     var dx = d.target.x - d.source.x,
@@ -349,6 +367,7 @@ var render = function (graphData) {
 
 
   //Initial
+  var groupDict = null;
   linkedNodes.forEach(function (node){
     add(node);
   });
@@ -446,7 +465,7 @@ var render = function (graphData) {
   //==========================================
 
   //Update force graph with new nodes and links
-  function update() {
+  function update() { 
     link = link.data(links);
 
     link.enter().append("path")
@@ -520,6 +539,7 @@ var render = function (graphData) {
     }
     tick();
   }
+
 
   //Remove passed in node and adjacent links from graph
   function hide(n){
