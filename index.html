@@ -138,7 +138,7 @@ text {
   <div>
     <input type='button' id='hide' value='Hide' class="btn"></input>
     <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
-    <input type='button' id='group' value='group' class="btn"></input>
+    <input type='button' id='groupBtn' value='group' class="btn"></input>
 
   </div>
 </div>
@@ -254,7 +254,8 @@ var render = function (graphData) {
   var nodes = force.nodes(),
       links = force.links(),
       node = svg.selectAll(".node"),
-      link = svg.selectAll(".link");
+      link = svg.selectAll(".link"),
+      group = svg.selectAll(".group");
 
   function tick(e) {
     if (groupDict){
@@ -299,24 +300,13 @@ var render = function (graphData) {
 
     svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
     
-    var groups = d3.nest().key(function(d) {return d.assignee; }).entries(nodes);
     var groupPath = function(d) {
         var hull = d3.geom.hull(d.values.map(function(i) { return [i.x, i.y]; }));
         return hull.length > 0 ? "M" + hull.join("L") + "Z" : "M0 0";
     };
 
-    svg.selectAll(".group")
-      .data(groups)
-        .attr("class","group")
-        .attr("d", groupPath)
-      .enter().insert("path",".node")
-        .attr("class","group")
-        .style("fill", "black")
-        .style("stroke", "black")
-        .style("stroke-width", 40)
-        .style("stroke-linejoin", "round")
-        .style("opacity", .2)
-        .attr("d", groupPath);
+
+    group.attr("d", groupPath);
   }
 
 
@@ -466,6 +456,22 @@ var render = function (graphData) {
 
   //Update force graph with new nodes and links
   function update() { 
+    var groups = d3.nest().key(function(d) {return d.assignee; }).entries(nodes);
+
+    group = group.data(groups)
+        .attr("class","group")
+
+    group.enter().insert("path",".node")
+        .attr("class","group")
+        .style("fill", "black")
+        .style("stroke", "black")
+        .style("stroke-width", 40)
+        .style("stroke-linejoin", "round")
+        .style("opacity", .2);
+
+    group.exit().remove();
+
+
     link = link.data(links);
 
     link.enter().append("path")
@@ -599,8 +605,8 @@ var render = function (graphData) {
     }
 
   }
-  document.getElementById('group').addEventListener("click", group, false);
-  function group(){
+  document.getElementById('groupBtn').addEventListener("click", groupCall, false);
+  function groupCall(){
     console.log("group");
     if (groupDict) {
       groupDict = null;
