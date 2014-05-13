@@ -265,10 +265,7 @@ var render = function (graphData) {
     }
 
 
-    link.attr("x1", function (d) { return d.source.x; })
-        .attr("y1", function (d) { return d.source.y; })
-        .attr("x2", function (d) { return d.target.x; })
-        .attr("y2", function (d) { return d.target.y; });
+    link.attr("d", linkArc);
 
     node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
 
@@ -303,6 +300,13 @@ var render = function (graphData) {
     scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
 
     svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
+  }
+
+  function linkArc(d) {
+    var dx = d.target.x - d.source.x,
+        dy = d.target.y - d.source.y,
+        dr = groupDict ? Math.sqrt(dx * dx + dy * dy) : 0;
+    return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
   }
 
 
@@ -445,7 +449,7 @@ var render = function (graphData) {
   function update() {
     link = link.data(links);
 
-    link.enter().insert("line", ".node")
+    link.enter().append("path")
         .attr("class", "link")
         .attr("marker-end", function (d) { return "url(#" + d.type + ")"; });
 
@@ -469,6 +473,8 @@ var render = function (graphData) {
 
 
     node.exit().remove();
+
+    groupDict = groupDict ? setGroupDict() : null;
     force.start();
   }
 
@@ -581,19 +587,22 @@ var render = function (graphData) {
       force.linkStrength(1);
 
     } else {
-      groupDict = {};
+      groupDict = true;
+      force.linkStrength(0);
+    }
+    update();//update sets groupDict
+  }
+
+  function setGroupDict() {//Called from update
+      var temp = {};
       var i = 1;
       nodes.forEach(function (node) {
-        if (!groupDict[node.assignee]){
-          groupDict[node.assignee] = i
+        if (!temp[node.assignee]){
+          temp[node.assignee] = i
           i = i > 0 ? -i : -i + 1;
         }
       });
-      console.log(groupDict);
-      force.linkStrength(0);
-
-    }
-    update();
+      return temp;
   }
 };
 </script>
