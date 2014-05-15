@@ -258,15 +258,30 @@ var render = function (graphData) {
       group = svg.selectAll(".group");
 
   function tick(e) {
+    var groupPath = function(d) {
+        //console.log(d);
+        var hull = d3.geom.hull(d.values.map(function(i) { return [i.x, i.y]; }));
+        return hull.length > 0 ? "M" + hull.reverse().join("L") + "Z" : "M0 0";
+    };
+
+    
+    
+
     if (groupDict){
+      group.select("path").attr("d", groupPath);
+      //group.select("text").text(function (d) {return d.key;});
       nodes.forEach(function(o, i) {
         o.x += groupDict[o.assignee] * 10 * force.alpha();
       });
+    } else {
+      group.select("path").attr("d", "M0 0");
+
     }
 
     link.attr("d", linkArc);
 
     node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+
 
     node.select("circle")
         .style("fill", function (d) {
@@ -300,13 +315,7 @@ var render = function (graphData) {
 
     svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
     
-    var groupPath = function(d) {
-        var hull = d3.geom.hull(d.values.map(function(i) { return [i.x, i.y]; }));
-        return hull.length > 0 ? "M" + hull.join("L") + "Z" : "M0 0";
-    };
 
-
-    group.attr("d", groupPath);
   }
 
 
@@ -461,13 +470,23 @@ var render = function (graphData) {
     group = group.data(groups)
         .attr("class","group")
 
-    group.enter().insert("path",".node")
-        .attr("class","group")
+    var newgroup = group.enter().append("g")
+        .attr("class","group");
+
+    newgroup.insert("path",".node")
+        .attr("id", function (d,i) { return "path_" + i; })
         .style("fill", "black")
         .style("stroke", "black")
         .style("stroke-width", 40)
         .style("stroke-linejoin", "round")
         .style("opacity", .2);
+
+    newgroup.append("text")
+        .attr("x", 8)
+        .attr("dy", -28)
+        .append("textPath").attr("xlink:href", function (d,i) { return "#path_" + i; })
+        .attr("font-size", "15")
+        .text(function (d,i) { return d.key; });
 
     group.exit().remove();
 
@@ -611,7 +630,6 @@ var render = function (graphData) {
     if (groupDict) {
       groupDict = null;
       force.linkStrength(1);
-
     } else {
       groupDict = true;
       force.linkStrength(0);
