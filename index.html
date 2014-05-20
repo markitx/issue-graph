@@ -539,7 +539,6 @@ var render = function (graphData) {
             var id = match.match(/#\d+/);
             var repo = descriptNode.repo;
             var n = id[0].match(/\d+/)[0];
-
           }
           descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n + "' class='bodybtn'></input>");
           //onclick='find(\""+repo+n+"\")'
@@ -642,11 +641,20 @@ var render = function (graphData) {
       var temp = {};
       var i = 1;
       nodes.forEach(function (node) {
-        if (!temp[node.assignee]){
-          temp[node.assignee] = i
-          i = i > 0 ? -i : -i + 1;
-        }
+        temp[node.assignee] = temp[node.assignee] ? temp[node.assignee]+1 : 1;
+        // if (!temp[node.assignee]){
+        //   temp[node.assignee] = i
+        //   i = i > 0 ? -i : -i + 1;
+        // }
       });
+      var sorted = d3.keys(temp).sort(function (a,b) {
+        return temp[a] - temp[b];
+      });
+      console.log(temp);
+      console.log(sorted);
+      sorted.forEach(function (n, i) {
+        temp[n] = (i - (sorted.length /2));
+      })
       return temp;
   }
 };
