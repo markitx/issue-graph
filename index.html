@@ -262,7 +262,25 @@ var render = function (graphData) {
     var groupPath = function(d) {
         //console.log(d);
         var hull = d3.geom.hull(d.values.map(function(i) { return [i.x, i.y]; }));
-        return hull.length > 0 ? "M" + hull.reverse().join("L") + "Z" : "M0 0";
+        if (hull.length > 0){
+          return "M" + hull.reverse().join("L") + "Z";
+        } else {
+          var x = d.values[0].x;
+          var y = d.values[0].y;
+          var x2 = parseFloat(x) + 1;
+          var y2 = parseFloat(y) + 1;
+          var x3 = parseFloat(x) - 1;
+          var y3 = parseFloat(y) - 1;
+          var path = "M" + x + "," + y + "L" + x2 + "," + y2 + "L" + x3 + "," + y3;
+
+          for (var i = 1; i < d.values.length; i++) {
+              var a = d.values[i].x;
+              var b = d.values[i].y;
+              path += "L" + a + "," + b;
+          }
+          path += "Z";
+          return path;
+        }
     };
 
     
