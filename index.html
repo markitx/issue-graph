@@ -138,7 +138,9 @@ text {
   <div>
     <input type='button' id='hide' value='Hide' class="btn"></input>
     <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
-    <input type='button' id='groupBtn' value='group by assignee' class="btn"></input>
+    <input type='button' id='assigneeGroup' value='group by assignee' class="btn"></input>
+    <input type='button' id='repoGroup' value='group by repo' class="btn"></input>
+
 
 
   </div>
@@ -286,11 +288,19 @@ var render = function (graphData) {
     
     
 
-    if (groupDict){
+    if (groupObj){
       group.select("path").attr("d", groupPath);
       //group.select("text").text(function (d) {return d.key;});
       nodes.forEach(function(o, i) {
-        o.x += groupDict[o.assignee] * 10 * force.alpha();
+
+        switch(groupObj.type) {
+        case "assignee":
+          o.x += groupObj.dict[o.assignee] * 10 * force.alpha();
+          break;
+        case "repo":
+          o.x += groupObj.dict[o.repo] * 10 * force.alpha();
+          break;
+        }
       });
     } else {
       group.select("path").attr("d", "M0 0");
@@ -341,7 +351,7 @@ var render = function (graphData) {
   function linkArc(d) {
     var dx = d.target.x - d.source.x,
         dy = d.target.y - d.source.y,
-        dr = groupDict ? Math.sqrt(dx * dx + dy * dy) : 0;
+        dr = groupObj ? Math.sqrt(dx * dx + dy * dy) : 0;
     return "M" + d.source.x + "," + d.source.y + "A" + dr + "," + dr + " 0 0,1 " + d.target.x + "," + d.target.y;
   }
 
@@ -385,7 +395,7 @@ var render = function (graphData) {
 
 
   //Initial
-  var groupDict = null;
+  var groupObj = null;
   linkedNodes.forEach(function (node){
     add(node);
   });
@@ -484,15 +494,25 @@ var render = function (graphData) {
 
   //Update force graph with new nodes and links
   function update() { 
-    var groups = d3.nest().key(function(d) {return d.assignee; }).entries(nodes);
+    var groups = [];
+    if (groupObj){
+      switch(groupObj.type){
+        case "assignee":
+          groups = d3.nest().key(function(d) {return d.assignee; }).entries(nodes);
+          break;
+        case "repo":
+          groups = d3.nest().key(function(d) {return d.repo; }).entries(nodes);
+          break;
+      }
+    }
 
     group = group.data(groups)
         .attr("class","group")
 
-    var newgroup = group.enter().append("g")
+    var newgroup = group.enter().insert("g",".node")
         .attr("class","group");
 
-    newgroup.insert("path",".node")
+    newgroup.append("path")
         .attr("id", function (d,i) { return "path_" + i; })
         .style("fill", "black")
         .style("stroke", "black")
@@ -537,7 +557,11 @@ var render = function (graphData) {
 
     node.exit().remove();
 
-    groupDict = groupDict ? setGroupDict() : null;
+    if (groupObj){
+      groupObj.dict = setGroupDict();
+      console.log(groupObj);
+
+    }
     force.start();
   }
 
@@ -642,14 +666,21 @@ var render = function (graphData) {
     }
 
   }
-  document.getElementById('groupBtn').addEventListener("click", groupCall, false);
-  function groupCall(){
+  document.getElementById('assigneeGroup').addEventListener("click", function () {groupCall("assignee");}, false);
+  document.getElementById('repoGroup').addEventListener("click", function () {groupCall("repo");}, false);
+
+  function groupCall(type){
     console.log("group");
-    if (groupDict) {
-      groupDict = null;
+    if (groupObj && groupObj.type === type) {
+      groupObj = null;
       force.linkStrength(1);
     } else {
-      groupDict = true;
+      groupObj = null;
+      update();
+      groupObj = {
+        type: type,
+        dict: null
+      };
       force.linkStrength(0);
     }
     update();//update sets groupDict
@@ -659,11 +690,15 @@ var render = function (graphData) {
       var temp = {};
       var i = 1;
       nodes.forEach(function (node) {
-        temp[node.assignee] = temp[node.assignee] ? temp[node.assignee]+1 : 1;
-        // if (!temp[node.assignee]){
-        //   temp[node.assignee] = i
-        //   i = i > 0 ? -i : -i + 1;
-        // }
+        switch(groupObj.type){
+          case "assignee":
+            temp[node.assignee] = temp[node.assignee] ? temp[node.assignee]+1 : 1;
+            break;
+          case "repo":
+            temp[node.repo] = temp[node.repo] ? temp[node.repo]+1 : 1;
+            break;
+
+        }
       });
       var sorted = d3.keys(temp).sort(function (a,b) {
         return temp[a] - temp[b];
