@@ -140,6 +140,8 @@ text {
     <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
     <input type='button' id='assigneeGroup' value='group by assignee' class="btn"></input>
     <input type='button' id='repoGroup' value='group by repo' class="btn"></input>
+    <input type='button' id='mileGroup' value='group by milestone' class="btn"></input>
+
 
 
 
@@ -154,7 +156,7 @@ text {
 //==========================================
 //==========================================
 var description = d3.select("#text")
-    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Assignee: </b><br/><b>Repo: </b>");
+    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Assignee: </b><br/><b>Milestone: </b><br/><b>Repo: </b>");
 
 var descriptNode = {
   id: '',
@@ -162,6 +164,7 @@ var descriptNode = {
   title: '',
   body: '',
   assignee: '',
+  milestone: '',
   repo: '',
   url: ''
 };
@@ -300,6 +303,10 @@ var render = function (graphData) {
         case "repo":
           o.x += groupObj.dict[o.repo] * 10 * force.alpha();
           break;
+        case "milestone":
+          o.x += groupObj.dict[o.milestone] * 10 * force.alpha();
+          break;
+          
         }
       });
     } else {
@@ -503,6 +510,9 @@ var render = function (graphData) {
         case "repo":
           groups = d3.nest().key(function(d) {return d.repo; }).entries(nodes);
           break;
+        case "milestone":
+          groups = d3.nest().key(function(d) {return d.milestone; }).entries(nodes);
+          break;
       }
     }
 
@@ -595,6 +605,7 @@ var render = function (graphData) {
                                       "<br/><b>Body: </b>"+descriptNode.body+
                                       "<br/><b>ID: </b>"+descriptNode.id+
                                       "<br/><b>Assignee: </b>"+descriptNode.assignee+
+                                      "<br/><b>Milestone: </b>"+descriptNode.milestone+
                                       "<br/><b>Repo: </b>"+descriptNode.repo;
     
     var bodybtnElements = document.getElementsByClassName('bodybtn');
@@ -635,6 +646,7 @@ var render = function (graphData) {
       title: '',
       body: '',
       assignee: '',
+      milestone: '',
       repo: ''
     });
     return connect_nodes;
@@ -668,6 +680,8 @@ var render = function (graphData) {
   }
   document.getElementById('assigneeGroup').addEventListener("click", function () {groupCall("assignee");}, false);
   document.getElementById('repoGroup').addEventListener("click", function () {groupCall("repo");}, false);
+  document.getElementById('mileGroup').addEventListener("click", function () {groupCall("milestone");}, false);
+
 
   function groupCall(type){
     console.log("group");
@@ -696,6 +710,9 @@ var render = function (graphData) {
             break;
           case "repo":
             temp[node.repo] = temp[node.repo] ? temp[node.repo]+1 : 1;
+            break;
+          case "milestone":
+            temp[node.milestone] = temp[node.milestone] ? temp[node.milestone]+1 : 1;
             break;
         }
       });

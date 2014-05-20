@@ -88,6 +88,7 @@ var issues = function (session, callback) {
 					title: value.title,
 					body: marked(value.body),
 					assignee: value.assignee ? value.assignee.login : "none",
+					milestone: value.milestone ? value.milestone.title : "none",
 					repo: name,
 					url: value.html_url
 				};
