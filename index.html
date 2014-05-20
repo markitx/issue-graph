@@ -697,7 +697,6 @@ var render = function (graphData) {
           case "repo":
             temp[node.repo] = temp[node.repo] ? temp[node.repo]+1 : 1;
             break;
-
         }
       });
       var sorted = d3.keys(temp).sort(function (a,b) {
