@@ -141,6 +141,8 @@ text {
     <input type='button' id='assigneeGroup' value='group by assignee' class="btn"></input>
     <input type='button' id='repoGroup' value='group by repo' class="btn"></input>
     <input type='button' id='mileGroup' value='group by milestone' class="btn"></input>
+    <input type='text' id='keyword' placeholder='Keyword search' value='' class="find"></input>
+
 
 
 
@@ -321,7 +323,12 @@ var render = function (graphData) {
 
     node.select("circle")
         .style("fill", function (d) {
-          return repoColor[d.repo];
+          var keyword = new RegExp(d3.select('#keyword')[0][0].value, "i");
+          if (d.body.match(keyword) || d.title.match(keyword)){
+            return repoColor[d.repo];
+          } else {
+            return;
+          }
         })
         .attr("stroke-width", function (d){
                                 if(d.id == descriptNode.id){
@@ -593,7 +600,7 @@ var render = function (graphData) {
             var n = id[0].match(/\d+/)[0];
           }
           descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n + "' class='bodybtn'></input>");
-          //onclick='find(\""+repo+n+"\")'
+          
         }
 
       });
@@ -681,6 +688,7 @@ var render = function (graphData) {
   document.getElementById('assigneeGroup').addEventListener("click", function () {groupCall("assignee");}, false);
   document.getElementById('repoGroup').addEventListener("click", function () {groupCall("repo");}, false);
   document.getElementById('mileGroup').addEventListener("click", function () {groupCall("milestone");}, false);
+  document.getElementById('keyword').addEventListener("keyup", tick);
 
 
   function groupCall(type){
