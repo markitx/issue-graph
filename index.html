@@ -102,8 +102,8 @@ circle {
 
 text {
   font: 10px sans-serif;
-  pointer-events: none;
 }
+
 #text {
   font: 10px sans-serif;
 }
@@ -125,6 +125,10 @@ text {
     Filter<br/>
     <form id='checkboxForm'>
     </form>
+    Group<br/>
+    <label><input type='checkbox' id='assigneeGroup'><text>By assignee</text></input></label><br/>
+    <label><input type='checkbox' id='repoGroup'><text>By repo</text></input></label><br/>
+    <label><input type='checkbox' id='mileGroup'><text>By milestone</text></input></label>
   </div>
   <div id='find'>
     <select id='dropdown' class="find"></select>
@@ -138,9 +142,8 @@ text {
   <div>
     <input type='button' id='hide' value='Hide' class="btn"></input>
     <input type='button' id='hidegroup' value='Hide Group' class="btn"></input>
-    <input type='button' id='assigneeGroup' value='group by assignee' class="btn"></input>
-    <input type='button' id='repoGroup' value='group by repo' class="btn"></input>
-    <input type='button' id='mileGroup' value='group by milestone' class="btn"></input>
+    <input type='button' id='undo' value='Undo' class="btn"></input>
+
     <input type='text' id='keyword' placeholder='Keyword search' value='' class="find"></input>
 
 
@@ -195,17 +198,28 @@ var render = function (graphData) {
   //==========================================
 
   d3.select('#hide').on('click', function() {
+    undoStack.push(descriptNode);
     hide(descriptNode);
     update();
   });
 
   d3.select('#hidegroup').on('click', function() {
+    var hiddenNodes = [];
     var hide_group = function (node) {
+      hiddenNodes.push(node);
       hide(node).forEach(function (new_node) {
         hide_group(new_node);
       });
     }
     hide_group(descriptNode);
+    undoStack.push(hiddenNodes);
+    update();
+  });
+
+  d3.select('#undo').on('click', function() {
+    if (undoStack.length > 0){
+      undoStack.pop().forEach(function (n) {add(n);});
+    }
     update();
   });
 
@@ -267,7 +281,6 @@ var render = function (graphData) {
 
   function tick(e) {
     var groupPath = function(d) {
-        //console.log(d);
         var hull = d3.geom.hull(d.values.map(function(i) { return [i.x, i.y]; }));
         if (hull.length > 0){
           return "M" + hull.reverse().join("L") + "Z";
@@ -409,6 +422,7 @@ var render = function (graphData) {
 
 
   //Initial
+  var undoStack = [];
   var groupObj = null;
   linkedNodes.forEach(function (node){
     add(node);
@@ -527,7 +541,16 @@ var render = function (graphData) {
         .attr("class","group")
 
     var newgroup = group.enter().insert("g",".node")
-        .attr("class","group");
+        .attr("class","group")
+        .on("click", 
+          function (d) {
+            undoStack.push(d.values);
+            d.values.forEach(function (obj) {
+              hide(obj);
+            });
+            update();
+          });
+
 
     newgroup.append("path")
         .attr("id", function (d,i) { return "path_" + i; })
@@ -549,7 +572,7 @@ var render = function (graphData) {
 
     link = link.data(links);
 
-    link.enter().append("path")
+    link.enter().insert("path",".node")
         .attr("class", "link")
         .attr("marker-end", function (d) { return "url(#" + d.type + ")"; });
 
@@ -576,7 +599,6 @@ var render = function (graphData) {
 
     if (groupObj){
       groupObj.dict = setGroupDict();
-      console.log(groupObj);
 
     }
     force.start();
@@ -600,7 +622,7 @@ var render = function (graphData) {
             var n = id[0].match(/\d+/)[0];
           }
           descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n + "' class='bodybtn'></input>");
-          
+
         }
 
       });
@@ -685,14 +707,28 @@ var render = function (graphData) {
     }
 
   }
-  document.getElementById('assigneeGroup').addEventListener("click", function () {groupCall("assignee");}, false);
-  document.getElementById('repoGroup').addEventListener("click", function () {groupCall("repo");}, false);
-  document.getElementById('mileGroup').addEventListener("click", function () {groupCall("milestone");}, false);
+  document.getElementById('assigneeGroup').addEventListener("click", 
+    function () {
+      d3.select('#repoGroup').property('checked', false);
+      d3.select('#mileGroup').property('checked', false);
+      groupCall("assignee");
+    }, false);
+  document.getElementById('repoGroup').addEventListener("click", 
+    function () {
+      d3.select('#assigneeGroup').property('checked', false);
+      d3.select('#mileGroup').property('checked', false);
+      groupCall("repo");
+    }, false);
+  document.getElementById('mileGroup').addEventListener("click", 
+    function () {
+      d3.select('#repoGroup').property('checked', false);
+      d3.select('#assigneeGroup').property('checked', false);
+      groupCall("milestone");
+    }, false);
   document.getElementById('keyword').addEventListener("keyup", tick);
 
 
   function groupCall(type){
-    console.log("group");
     if (groupObj && groupObj.type === type) {
       groupObj = null;
       force.linkStrength(1);
@@ -727,8 +763,6 @@ var render = function (graphData) {
       var sorted = d3.keys(temp).sort(function (a,b) {
         return temp[a] - temp[b];
       });
-      console.log(temp);
-      console.log(sorted);
       sorted.forEach(function (n, i) {
         temp[n] = (i - (sorted.length /2));
       })
