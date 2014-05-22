@@ -217,8 +217,13 @@ var render = function (graphData) {
   });
 
   d3.select('#undo').on('click', function() {
-    if (undoStack.length > 0){
-      undoStack.pop().forEach(function (n) {add(n);});
+    var popped = undoStack.pop();
+    if (popped){
+      if (popped.length > 0){
+        popped.forEach(function (n) {add(n);});
+      } else {
+        add(popped);
+      }
     }
     update();
   });
