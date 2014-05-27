@@ -375,8 +375,6 @@ var render = function (graphData) {
     scale = d3.min([1,width/(d3.max(xs)+50+dx),height/(d3.max(ys)+50+dy)]);
 
     svg.attr('transform','translate(' + dx*scale +',' + dy*scale + ')scale('+scale+')');
-    
-
   }
 
 
@@ -613,30 +611,49 @@ var render = function (graphData) {
   //Argument: node clicked
   function click(d) {
     descriptNode = d;
-    var matches = descriptNode.body.match(/[&\'a-z-_/]*#\d+/gi);
-    if (matches) {
-      matches.forEach(function (match) {
-        if (match.indexOf('\'') == -1 && match.indexOf('&') == -1){
-          var id = match.match(/[a-z-_/]+#\d+/gi);
-          if (id && id.length >0) {
-            var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
-            var n = id[0].match(/\d+/)[0];
-          } else {
-            var id = match.match(/#\d+/);
-            var repo = descriptNode.repo;
-            var n = id[0].match(/\d+/)[0];
+    var add_btns = function (body) {
+      var matches = body.match(/[&\'a-z-_/]*#\d+/gi);
+      if (matches) {
+        matches.forEach(function (match) {
+          if (match.indexOf('\'') == -1 && match.indexOf('&') == -1){
+            var id = match.match(/[a-z-_/]+#\d+/gi);
+            if (id && id.length >0) {
+              var repo = id[0].match(/[a-z-_]+#/)[0].match(/[a-z-_]+/)[0];
+              var n = id[0].match(/\d+/)[0];
+            } else {
+              var id = match.match(/#\d+/);
+              var repo = descriptNode.repo;
+              var n = id[0].match(/\d+/)[0];
+            }
+            body = body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n + "' class='bodybtn'></input>");
+
           }
-          descriptNode.body = descriptNode.body.replace(match,"<input type='button' value='"+id+"' id='"+repo + n + "' class='bodybtn'></input>");
 
-        }
-
-      });
+        });
 
 
+      }
+      return body;
     }
-    document.getElementById('text').innerHTML = "<b>Title: </b><a href='" + descriptNode.url + "' target='_blank'>"+descriptNode.title+"</a>"+
+
+
+    var highlight = function (body) {
+      var keyword = d3.select('#keyword')[0][0].value;
+      var keyword_re = new RegExp(keyword, "i");
+      var match = body.match(keyword_re);
+      if (match && keyword != "") { 
+        var first_half = body.substring(0,body.indexOf(match[0]) + match[0].length);
+        var second_half = body.substring(body.indexOf(match[0]) + match[0].length);
+
+        return first_half.replace(match[0],"<mark>"+match[0]+"</mark>") + highlight(second_half);
+      }
+      return body;
+    }
+
+
+    document.getElementById('text').innerHTML = "<b>Title: </b><a href='" + descriptNode.url + "' target='_blank'>"+highlight(descriptNode.title)+"</a>"+
                                       "<br/><b>Number: </b>"+descriptNode.number+
-                                      "<br/><b>Body: </b>"+descriptNode.body+
+                                      "<br/><b>Body: </b>"+add_btns(highlight(descriptNode.body))+
                                       "<br/><b>ID: </b>"+descriptNode.id+
                                       "<br/><b>Assignee: </b>"+descriptNode.assignee+
                                       "<br/><b>Milestone: </b>"+descriptNode.milestone+
@@ -690,9 +707,9 @@ var render = function (graphData) {
     if(nodes.indexOf(n)==-1){
       nodes.push(n);
       linkAll.forEach(function(link) {
-        if(link.source == n && nodes.indexOf(link.target)!=-1){
+        if(link.source == n && nodes.indexOf(link.target)!= -1){
           links.push(link);
-        } else if(link.target == n && nodes.indexOf(link.source)!=-1){
+        } else if(link.target == n && nodes.indexOf(link.source)!= -1){
           links.push(link);
         }
       })
@@ -730,7 +747,7 @@ var render = function (graphData) {
       d3.select('#assigneeGroup').property('checked', false);
       groupCall("milestone");
     }, false);
-  document.getElementById('keyword').addEventListener("keyup", tick);
+  document.getElementById('keyword').addEventListener("keyup", function () {tick;click(descriptNode);});
 
 
   function groupCall(type){
