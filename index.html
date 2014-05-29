@@ -567,8 +567,10 @@ var render = function (graphData) {
         .attr("x", 8)
         .attr("dy", -28)
         .append("textPath").attr("xlink:href", function (d,i) { return "#path_" + i; })
+        .attr("id","group_label")
         .attr("font-size", "15")
-        .text(function (d,i) { return d.key; });
+
+    group.select("#group_label").text(function (d,i) { return d.key; });
 
     group.exit().remove();
 
@@ -639,15 +641,35 @@ var render = function (graphData) {
 
     var highlight = function (body) {
       var keyword = d3.select('#keyword')[0][0].value;
-      var keyword_re = new RegExp(keyword, "i");
-      var match = body.match(keyword_re);
-      if (match && keyword != "") { 
-        var first_half = body.substring(0,body.indexOf(match[0]) + match[0].length);
-        var second_half = body.substring(body.indexOf(match[0]) + match[0].length);
-
-        return first_half.replace(match[0],"<mark>"+match[0]+"</mark>") + highlight(second_half);
+      var new_body = "";
+      while (body.length > 0){
+        if (body[0] != '<'){ //outside of tag
+          var index = body.indexOf('<');
+          if (index < 0){
+            new_body += body;
+            body = "";
+          } else {
+            new_body += body.substring(0,index);
+            body = body.substring(body.indexOf('<'));
+          }
+        } else { //within Tag
+          new_body += body.substring(0,body.indexOf('>')+1);
+          body = body.substring(body.indexOf('>')+1);
+        }
       }
-      return body;
+      console.log(new_body);
+      // var keyword_re = new RegExp('>[^<]*' + keyword + '[^>]*<', "i");
+      // var match = body.match(keyword_re);
+      // if (match && keyword != "") { 
+      //   var keymatch = match[0].match(new RegExp(keyword, "i"));
+      //   var pos = match[0].indexOf(keymatch[0]);
+      //   var first_half = body.substring(0,body.indexOf(match[0]) + pos );
+      //   var second_half = body.substring(body.indexOf(match[0]) + pos + keyword.length);
+      //   console.log(first_half + " ::: " + second_half);
+
+      //   return highlight(first_half + "<mark>"+keymatch[0]+"</mark>" + second_half);
+      // }
+      return new_body;
     }
 
 
