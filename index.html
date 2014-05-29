@@ -643,7 +643,7 @@ var render = function (graphData) {
       var keyword = d3.select('#keyword')[0][0].value;
       var new_body = "";
       while (body.length > 0){
-        if (body[0] != '<'){ //outside of tag
+        if (body[0] != '<'){ //outside of tag //START WORKING HERE
           var index = body.indexOf('<');
           if (index < 0){
             new_body += body;
