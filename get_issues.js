@@ -87,6 +87,7 @@ var issues = function (session, callback) {
 					number: value.number,
 					title: value.title,
 					body: marked(value.body),
+					naked_body: value.body,
 					assignee: value.assignee ? value.assignee.login : "none",
 					milestone: value.milestone ? value.milestone.title : "none",
 					repo: name,
