@@ -14,5 +14,30 @@ My vision for this application is to become a tool to visualize the workflow and
 
 Features
 --------
+* Select source of graph
+    * Select between User repos, Organization repos, or public repos
+* Color
+    * Issue nodes colored by Repo
+* Auto zoom
+    * Graph automatically resizes to fit all issue nodes
+* Click Nodes
+    * Click nodes to dispay issue data and options to hide issue or cluster
+* Add/hide
+    * Buttons to hide issue nodes or clusters
+    * Add specific issue nodes
+* Undo
+    * Undo hidden issue nodes and clusters
+* Grouping
+    * Group issues by Assignee, Repo, or Milestone
+    * Hide groups by clicking group (can be undo'd)
+* Filtering
+    * Options on sidebar to filter the issue nodes by repo
+* Keyword Search Bar
+    * Greys out issue nodes not containing keyword in Title or Body
+    * Highlights keywords in issue data
 
-Server can be launched at /bin/graph-server
+Installation
+------------
+$ npm install
+
+$ /bin/graph-server
