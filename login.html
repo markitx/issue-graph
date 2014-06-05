@@ -120,7 +120,6 @@ circle {
 
 text {
   font: 10px sans-serif;
-  pointer-events: none;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
 
@@ -128,8 +127,7 @@ text {
   font: 10px sans-serif;
 }
 label {
-  font: 12px sans-serif;
-  pointer-events: none;
+  font: 10px sans-serif;
   text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
 .bodybtn {
@@ -147,12 +145,12 @@ label {
   <div id='filter'>
     Select Source<br/>
     <form id='loginForm' method='post' action='/login'>
-      <input type='radio' id='user' name='source' value='1' checked><text>User</text><br/>
+      <label><input type='radio' id='user' name='source' value='1' checked>User</label><br/>
 
-      <input type='radio' id='org' name='source' value='2'><text>Org</text>
+      <label><input type='radio' id='org' name='source' value='2'>Org</label>
       <select id='orgdrop' name='sname' disabled></select><br/>
 
-      <input type='radio' id='public' name='source' value='3'><text>Public</text>
+      <label><input type='radio' id='public' name='source' value='3'>Public</label>
       <input id='publictext' type='text' name='sname' placeholder='User/Org' disabled required>
 
       <input type="submit" class="submit" value="Submit" />
@@ -169,7 +167,7 @@ label {
   </div>
   <div>
     <input type='button' id='hide' value='Hide' class="btn" disabled></input>
-    <input type='button' id='hidegroup' value='Hide Group' class="btn" disabled></input>
+    <input type='button' id='hidegroup' value='Hide Cluster' class="btn" disabled></input>
     <input type='button' id='undo' value='Undo' class="btn" disabled></input>
 
     <input type='text' id='keyword' placeholder='Keyword search' value='' class="find" disabled></input>
