@@ -39,6 +39,7 @@ Features
 * Grouping
     * Group issues by Assignee, Repo, or Milestone
     * Hide groups by clicking group (can be undo'd)
+![alt text](./images/issueg4.png)
 * Filtering
     * Options on sidebar to filter the issue nodes by repo
 * Keyword Search Bar
