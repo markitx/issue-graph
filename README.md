@@ -5,6 +5,7 @@ A graphical view of the relationships between github issues
 
 ---
 
+![alt text](./images/issueg1.png)
 GitHub is awesome for tracking issues related to repositories. It even lets you easily reference issues across repos. But once you've grown to many repos, it can become very hard to see the overall map of dependencies between issues across projects. The goal of this Issue-Graph application is to make it possible to see at a glance how issues are related throughout an organization's or user's repos.
 
 Starting an internship earlier this year at [MarkITx](https://www.markitx.com/), I was given this basic premise and tasked with implementing it (using [d3](http://d3js.org/) and [node](http://nodejs.org/)) and making it my own.  Though not nearly finished, I do believe it can benefit from outside suggestions.  I just finished my first year at the University of Chicago and this is my first major dev project so I welcome any constructive recommendations.
