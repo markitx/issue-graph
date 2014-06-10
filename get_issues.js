@@ -119,15 +119,16 @@ var issues = function (session, callback) {
 					var type = match.match(keywordRegEx);
 					if(type === null) type = "n/a";
 					var id = match.match(/[&a-z-_/]+#\d+/i);
+					var linkedTo = null;
 					if (id && id.length >0) {
 						if (match.indexOf('&') == -1){
-							var linkedTo = nodesByNumber[id];
+							linkedTo = nodesByNumber[id];
 						}
 					} else {
 						id = match.match(/#\d+/);
 
 						if (id && id.length >0) {
-							var linkedTo = nodesByNumber[user +"/" + node.repo + id[0].replace(/ /, "")];
+							linkedTo = nodesByNumber[user +"/" + node.repo + id[0].replace(/ /, "")];
 						}
 					}
 					if (linkedTo) {
