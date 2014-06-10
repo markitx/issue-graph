@@ -335,7 +335,13 @@ var render = function (graphData) {
 
     }
 
-    link.attr("d", linkArc);
+    link.select("path").attr("d", linkArc);
+    link.select("text").attr("x", function (d) {
+                          var dx = d.target.x - d.source.x,
+                              dy = d.target.y - d.source.y;
+                          return (Math.sqrt(dx * dx + dy * dy) - ((d.type[0]).length * 6))/2;
+                          //return 25;
+                        })
 
     node.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
 
@@ -557,7 +563,7 @@ var render = function (graphData) {
 
 
     newgroup.append("path")
-        .attr("id", function (d,i) { return "path_" + i; })
+        .attr("id", function (d,i) { return "gpath_" + i; })
         .style("fill", "black")
         .style("stroke", "black")
         .style("stroke-width", 40)
@@ -567,9 +573,9 @@ var render = function (graphData) {
     newgroup.append("text")
         .attr("x", 8)
         .attr("dy", -28)
-        .append("textPath").attr("xlink:href", function (d,i) { return "#path_" + i; })
+        .append("textPath").attr("xlink:href", function (d,i) { return "#gpath_" + i; })
         .attr("id","group_label")
-        .attr("font-size", "15")
+        .attr("font-size", "15");
 
     group.select("#group_label").text(function (d,i) { return d.key; });
 
@@ -578,9 +584,21 @@ var render = function (graphData) {
 
     link = link.data(links);
 
-    link.enter().insert("path",".node")
+    var newlink = link.enter().insert("g",".node");
+
+    newlink.append("path")
+        .attr("id", function (d,i) { return "path_" + i; })
         .attr("class", "link")
         .attr("marker-end", function (d) { return "url(#" + d.type + ")"; });
+
+    newlink.append("text")
+        .attr("dy", -5)
+        .append("textPath").attr("xlink:href", function (d,i) { return "#path_" + i; })
+        .attr("id","path_label")
+        .attr("font-size", "10");
+
+    link.select("#path_label").text(function (d,i) { return d.type != "n/a" ? d.type : ""; });
+
 
     link.exit().remove();
 
