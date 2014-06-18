@@ -49,8 +49,10 @@ Features
 
 Installation
 ------------
-$ npm install
+From within folder...
 
-$ /bin/graph-server
+1) $ npm install
 
- Point your browser to http://localhost:3000
+2) $ /bin/graph-server
+
+3) Point your browser to http://localhost:3000
