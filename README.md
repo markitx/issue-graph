@@ -52,3 +52,5 @@ Installation
 $ npm install
 
 $ /bin/graph-server
+
+ Point your browser to http://localhost:3000
