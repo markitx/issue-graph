@@ -47,12 +47,22 @@ Features
     * Highlights keywords in issue data
 ![alt text](./images/issueg3.png)
 
-Installation
-------------
+ACCESS
+------
+
+http://issue-graph.herokuapp.com/
+
+DOWNLOAD + INSTALL
+------------------
+
 From within folder...
 
 1. $ npm install
 
-2. $ /bin/graph-server
+2. Register an Application on Github
 
-3. Point your browser to http://localhost:3000
+3. In lib/config.js replace config.gh_clientId and config.gh_secret  with the app's id and secret
+
+4. $ node lib/server.js
+
+5. Point your browser to http://localhost:3000
