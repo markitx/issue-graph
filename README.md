@@ -1,6 +1,8 @@
 issue-graph
 ===========
 
+http://issue-graph.herokuapp.com/
+
 A graphical view of the relationships between github issues 
 
 ![alt text](./images/issueg1.png)
@@ -47,11 +49,6 @@ Features
     * Highlights keywords in issue data
 ![alt text](./images/issueg3.png)
 
-ACCESS
-------
-
-http://issue-graph.herokuapp.com/
-
 DOWNLOAD + INSTALL
 ------------------
 
@@ -59,7 +56,7 @@ From within folder...
 
 1. $ npm install
 
-2. Register an Application on Github
+2. Register an application on Github
 
 3. In lib/config.js replace config.gh_clientId and config.gh_secret  with the app's id and secret
 
