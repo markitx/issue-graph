@@ -1,0 +1,38 @@
+{
+  "name": "issue-graph",
+  "version": "0.0.0",
+  "description": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hjylewis/issue-graph.git"
+  },
+  "dependencies": {
+    "request": "~2.33.0",
+    "grunt": "~0.3.17",
+    "github": "~0.1.13",
+    "marked": "~0.3.2",
+    "express": "~4.0.0",
+    "cookie-session": "~1.0.1",
+    "cookie-parser": "~1.0.1",
+    "express-session": "~1.0.2",
+    "everyauth": "~0.4.5",
+    "body-parser": "^1.0.2"
+  },
+  "devDependencies": {
+    "mocha": "~1.17.1"
+  },
+  "author": "Henry Lewis <hlewis@uchicago.edu>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hjylewis/issue-graph/issues"
+  },
+  "homepage": "https://github.com/hjylewis/issue-graph",
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  }
+}
