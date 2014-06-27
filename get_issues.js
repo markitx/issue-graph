@@ -1,6 +1,7 @@
 var GitHubApi = require('github');
 var fs = require('fs');
 var marked = require('marked');
+var async = require('async');
 
 
 var issues = function (session, callback) {
@@ -11,7 +12,7 @@ var issues = function (session, callback) {
 	var links = [];
 	var repos = [];
 	var nodesByNumber = {};
-	var count = 0;
+	var msg;
 
 	var github = new GitHubApi({
 		version: '3.0.0',
@@ -28,26 +29,61 @@ var issues = function (session, callback) {
 		}
 		keywords = (JSON.parse(data).keywords);
 		keywords.push("n/a");
+
 		if (session.source == 1) {
-			github.repos.getFromUser({
+			msg = {
 				user: session.uid,
-				type: 'all'
-			}, function (err, res) {
-				callGetIssues(res, session.uid);
-			});
+				type: 'all',
+				page: 1,
+				per_page: 100
+			};
 		} else if (session.source == 2){
-			github.repos.getFromOrg({
-				org: session.sname
-			}, function (err, res) {
-				callGetIssues(res, session.sname);
-			});
+			msg = {
+				org: session.sname,
+				page: 1,
+				per_page: 100
+			};
 		} else {
-			github.repos.getFromUser({
-				user: session.sname
-			}, function (err, res) {
-				callGetIssues(res, session.sname);
-			});
+			msg = {
+				user: session.sname,
+				page: 1,
+				per_page: 100
+			}
 		}
+
+		getRepos();
+
+		function getRepos(){
+			if (session.source == 2){
+				github.repos.getFromOrg(msg, function (err, res) {
+					repos = repos.concat(res);
+
+					if (res.length < 100){
+						callGetIssues(repos, session.sname);
+					} else {
+						msg.page++;
+						getRepos();
+					}
+				});
+			} else {
+				github.repos.getFromUser(msg, function (err, res) {
+					repos = repos.concat(res);
+
+					if (res.length < 100){
+						if (session.source == 1){
+							callGetIssues(repos, session.uid);
+						} else {
+							callGetIssues(repos, session.sname);
+						}
+					} else {
+						msg.page++;
+						getRepos();
+					}
+				});
+			}
+		}
+
+
 
 		function callGetIssues(repoList, user){
 			var filtered = repoList.filter(function (repo) {
@@ -58,15 +94,27 @@ var issues = function (session, callback) {
 			});
 
 			var repos_length = filtered.length;
-			filtered.forEach( function (repo,index) { //repo is each repo in org
-				getIssues(user,github,repo.name,1, repos_length);
-			});
-
+			async.each(filtered, function (repo, done) {
+				getIssues(user, github, repo.name, 1, done);
+			}, function (err) {
+				if (err){
+					callback(err);
+				} else {
+					writeData(user)
+				}
+			})
 		}
-
 	});
 
-	function getIssues(user,github,name,pageN,repos_length){
+
+
+
+
+
+
+
+
+	function getIssues(user,github,name,pageN,done){
 		github.issues.repoIssues({
 			user: user,
 			repo: name,
@@ -76,8 +124,8 @@ var issues = function (session, callback) {
 		}, function(err, res) {
 			//conole.log(res.length);
 			if (err) {
-				console.log('Error!');
-				return console.log(err);
+				console.log('Error!' + err);
+				done(err);
 			}
 			res.forEach( function(value) {
 				// copy over just the values we want
@@ -97,15 +145,10 @@ var issues = function (session, callback) {
 				nodesByNumber[user + "/" +node.repo + '#' + node.number] = node;
 			});
 			if (res.length === 0){
-				count++;
-				if(count == repos_length){
-					writeData(user);
-				}
+				done();
 			} else {
-				getIssues(user,github, name, pageN+1, repos_length);
+				getIssues(user,github, name, pageN+1, done);
 			}
-
-
 		});
 	}
 
@@ -138,7 +181,6 @@ var issues = function (session, callback) {
 							type: type
 						});
 					}
-
 				});
 			}
 		});

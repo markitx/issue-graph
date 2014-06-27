@@ -11,7 +11,8 @@ var orgs = function (uid, oauth, callback) {
 	});
 
 	github.orgs.getFromUser({
-		user: uid
+		user: uid,
+		per_page: 100
 	}, function (err,res) {
 		var result = res.map( function (element) {
 			return element.login;
