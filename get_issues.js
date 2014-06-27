@@ -48,7 +48,7 @@ var issues = function (session, callback) {
 				user: session.sname,
 				page: 1,
 				per_page: 100
-			}
+			};
 		}
 
 		getRepos();
@@ -100,9 +100,9 @@ var issues = function (session, callback) {
 				if (err){
 					callback(err);
 				} else {
-					writeData(user)
+					writeData(user);
 				}
-			})
+			});
 		}
 	});
 
