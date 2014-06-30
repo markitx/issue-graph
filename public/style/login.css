@@ -1,0 +1,132 @@
+.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+}
+
+
+.link.Requires {
+  stroke-dasharray: 0,2 1;
+}
+
+div#graph {
+  height: 500px;
+  width: 80%;
+  border:2px solid #000;
+  overflow: hidden;
+  float: left;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#side {
+  width: 20%;
+  float:left;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#side div#filter{
+  line-height:160%;
+  padding: 5px;
+  height: 435px;
+  margin-left: 10px;
+  overflow: auto;
+  border:2px solid #000;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#side div#find{
+  height: 55px;
+  margin-top: 10px;
+  margin-left: 10px;
+  border:2px solid #000;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+div#info {
+  width:100%;
+  padding:5px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border:2px solid #000;
+  float:left;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+#dropdown {
+  width:50%;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+
+
+}
+
+#issueNum {
+  margin: 0px;
+  width:45%;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+
+
+}
+
+#findbtn {
+  width:100%;
+
+}
+
+#orgdrop {
+  float:right;
+  width:60%;
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+#publictext {
+  float:right;
+  width:60%;
+
+  -webkit-box-sizing: border-box;
+   -moz-box-sizing: border-box;
+        box-sizing: border-box;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #333;
+}
+
+text {
+  font: 10px sans-serif;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+
+#text {
+  font: 10px sans-serif;
+}
+label {
+  font: 10px sans-serif;
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+}
+.bodybtn {
+  font: 10px sans-serif;
+  padding: 0px;
+}

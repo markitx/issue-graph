@@ -1,215 +1,48 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<style>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Github - Issue Graph</title>
+    <link rel="stylesheet" type="text/css" href="../style/login.css" />
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+  </head>
 
-.link {
-  fill: none;
-  stroke: #666;
-  stroke-width: 1.5px;
-}
+  <body>
+    <div id='graph'></div>
+    <div id='side'>
+      <div id='filter'>
+        Select Source<br/>
+        <form id='loginForm' method='post' action='/login.html'>
+          <label><input type='radio' id='user' name='source' value='1' checked>User</label><br/>
 
+          <label><input type='radio' id='org' name='source' value='2'>Org</label>
+          <select id='orgdrop' name='sname' disabled></select><br/>
 
-.overlay {
-  fill: none;
-  pointer-events: all;
-}
+          <label><input type='radio' id='public' name='source' value='3'>Public</label>
+          <input id='publictext' type='text' name='sname' placeholder='User/Org' disabled required>
+          <br />
+          <input type="submit" class="submit" value="Submit" />
+        </form>
+      </div>
+      <div id='find'>
+        <select id='dropdown' class="find" disabled></select>
+        <input type='text' id='issueNum' placeholder='Issue #' value='' class="find" disabled></input>
+        <input type='button' id='findbtn' value='Find/Add' class="find" disabled></input>
+      </div>
+    </div>
+    <div id='info'>
+      <div id='text'>
+      </div>
+      <div>
+        <input type='button' id='hide' value='Hide' class="btn" disabled></input>
+        <input type='button' id='hidegroup' value='Hide Cluster' class="btn" disabled></input>
+        <input type='button' id='undo' value='Undo' class="btn" disabled></input>
 
+        <input type='text' id='keyword' placeholder='Keyword search' value='' class="find" disabled></input>
+      </div>
+    </div>
+    <script type="text/javascript" src="/script/login.js"></script>
 
-.link.Requires {
-  stroke-dasharray: 0,2 1;
-}
-
-div#graph {
-  height: 500px;
-  width: 80%;
-  border:2px solid #000;
-  overflow: hidden;
-  float: left;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-div#side {
-  width: 20%;
-  float:left;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-div#side div#filter{
-  line-height:160%;
-  padding: 5px;
-  height: 435px;
-  margin-left: 10px;
-  overflow: auto;
-  border:2px solid #000;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-div#side div#find{
-  height: 55px;
-  margin-top: 10px;
-  margin-left: 10px;
-  border:2px solid #000;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-div#info {
-  width:100%;
-  padding:5px;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  border:2px solid #000;
-  float:left;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-#dropdown {
-  width:50%;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-
-
-}
-
-#issueNum {
-  margin: 0px;
-  width:45%;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-
-
-}
-
-#findbtn {
-  width:100%;
-
-}
-
-#orgdrop {
-  float:right;
-  width:60%;
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-#publictext {
-  float:right;
-  width:60%;
-
-  -webkit-box-sizing: border-box;
-   -moz-box-sizing: border-box;
-        box-sizing: border-box;
-}
-
-circle {
-  fill: #ccc;
-  stroke: #333;
-}
-
-text {
-  font: 10px sans-serif;
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-}
-
-#text {
-  font: 10px sans-serif;
-}
-label {
-  font: 10px sans-serif;
-  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
-}
-.bodybtn {
-  font: 10px sans-serif;
-  padding: 0px;
-}
-
-</style>
-<title>Github - Issue Graph</title>
-<body>
-<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js"></script>
-<script src="http://d3js.org/d3.v3.min.js"></script>
-<div id='graph'></div>
-<div id='side'>
-  <div id='filter'>
-    Select Source<br/>
-    <form id='loginForm' method='post' action='/login.html'>
-      <label><input type='radio' id='user' name='source' value='1' checked>User</label><br/>
-
-      <label><input type='radio' id='org' name='source' value='2'>Org</label>
-      <select id='orgdrop' name='sname' disabled></select><br/>
-
-      <label><input type='radio' id='public' name='source' value='3'>Public</label>
-      <input id='publictext' type='text' name='sname' placeholder='User/Org' disabled required>
-      <br />
-      <input type="submit" class="submit" value="Submit" />
-    </form>
-  </div>
-  <div id='find'>
-    <select id='dropdown' class="find" disabled></select>
-    <input type='text' id='issueNum' placeholder='Issue #' value='' class="find" disabled></input>
-    <input type='button' id='findbtn' value='Find/Add' class="find" disabled></input>
-  </div>
-</div>
-<div id='info'>
-  <div id='text'>
-  </div>
-  <div>
-    <input type='button' id='hide' value='Hide' class="btn" disabled></input>
-    <input type='button' id='hidegroup' value='Hide Cluster' class="btn" disabled></input>
-    <input type='button' id='undo' value='Undo' class="btn" disabled></input>
-
-    <input type='text' id='keyword' placeholder='Keyword search' value='' class="find" disabled></input>
-  </div>
-</div>
-
-
-
-<script>
-
-var description = d3.select("#text")
-    .html("<b>Title: </b><br/><b>Number: </b><br/><b>Body: </b><br/><b>ID: </b><br/><b>Assignee: </b><br/><b>Milestone: </b><br/><b>Repo: </b>");
-
-
-$.getJSON("orgs.json")
-  .done(function (data, textStatus, jqXHR) {
-    var orgs = data;
-    render(orgs);
-  })
-  .fail();
-var render = function (orgs) {
-  document.getElementById('user').addEventListener("click", userClick, false);
-  function userClick(){
-    document.getElementById('orgdrop').disabled = "true";
-    document.getElementById('publictext').disabled = "true";
-  }
-
-  document.getElementById('org').addEventListener("click", orgClick, false);
-  function orgClick(){
-    document.getElementById('orgdrop').disabled = null;
-    document.getElementById('publictext').disabled = "true";
-  }
-  document.getElementById('public').addEventListener("click", pubClick, false);
-  function pubClick(){
-    document.getElementById('publictext').disabled = null;
-    document.getElementById('orgdrop').disabled = "true";
-  }
-
-  orgs.forEach(function (org) {
-    d3.select('select').append('option').append('text').text(org);
-  });
-
-}
-
-</script>
+  </body>
+</html>
