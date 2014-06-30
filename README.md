@@ -52,14 +52,17 @@ Features
 DOWNLOAD + INSTALL
 ------------------
 
-From within folder...
+1. `$ git clone git@github.com:markitx/issue-graph.git`
 
-1. $ npm install
+2. `$ cd issue-graph`
 
-2. Register an application on Github
+3. `$ npm install`
 
-3. In lib/config.js replace config.gh_clientId and config.gh_secret  with the app's id and secret
+4. Register an application on Github 
+   (Authorization callback URL: http://localhost:3000/auth/github)
 
-4. $ node lib/server.js
+5. In lib/config.js replace config.gh_clientId and config.gh_secret  with the app's id and secret
 
-5. Point your browser to http://localhost:3000
+6. `$ node lib/server.js`
+
+7. Point your browser to http://localhost:3000
