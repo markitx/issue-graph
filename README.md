@@ -1,7 +1,7 @@
 issue-graph
 ===========
 
-http://issue-graph.herokuapp.com/
+http://issue-graph.markitx.com/
 
 A graphical view of the relationships between github issues 
 
