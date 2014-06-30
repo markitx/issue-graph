@@ -251,7 +251,7 @@ var render = function (graphData) {
 
   graphData.nodes.forEach(function (node) {
     nodeDict[node.repo+node.number] = node;
-    if (repoCount[node.repo] === null){
+    if (repoCount[node.repo] == null){
       repoCount[node.repo] = 1;
     } else {
       repoCount[node.repo]++;
