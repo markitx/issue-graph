@@ -49,8 +49,8 @@ Features
     * Highlights keywords in issue data
 ![alt text](./images/issueg3.png)
 
-DOWNLOAD + INSTALL
-------------------
+DOWNLOAD + RUN LOCALLY
+----------------------
 
 1. `$ git clone git@github.com:markitx/issue-graph.git`
 
