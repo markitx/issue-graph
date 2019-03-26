@@ -64,8 +64,8 @@ DOWNLOAD + RUN LOCALLY
 4. Register an application on Github 
    (Authorization callback URL: http://localhost:3000/auth/github)
 
-5. In lib/config.js replace config.gh_clientId and config.gh_secret  with the app's id and secret
+5. Export the environment variables `ISSUE_GRAPH_GITHUB_ID` and `ISSUE_GRAPH_GITHUB_SECRET` with the app's id and secret.
 
-6. `$ node lib/server.js`
+6. `$ npm start`
 
 7. Point your browser to http://localhost:3000

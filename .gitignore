@@ -1,3 +1,7 @@
+# JetBrains
+.idea
+
+# Other
 lib-cov
 *.seed
 *.log
@@ -17,3 +21,4 @@ node_modules
 key.txt
 
 graph-data.json
+
